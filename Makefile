@@ -2,7 +2,7 @@ install:
 	npm ci
 
 server:
-	npx start-server -a localhost -s ./frontend/build
+	npx start-server -s ./frontend/build
 
 start-frontend:
 	make -C frontend start
