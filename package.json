@@ -1,0 +1,24 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "[![Actions Status](https://github.com/michaeldobosh/frontend-project-12/workflows/hexlet-check/badge.svg)](https://github.com/michaeldobosh/frontend-project-12/actions)",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm run build --prefix frontend",
+    "start": "start-server -a localhost -s ./frontend/build",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/michaeldobosh/frontend-project-12.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/michaeldobosh/frontend-project-12/issues"
+  },
+  "homepage": "https://github.com/michaeldobosh/frontend-project-12#readme",
+  "dependencies": {
+    "@hexlet/chat-server": "^1.1.8"
+  }
+}
