@@ -1,0 +1,21 @@
+export default {
+  translation: {
+    enter: 'Войти',
+    your_nickname: 'Ваш ник',
+    password: 'Пароль',
+    submit: ' Отправить',
+    username_is_a_required_field: 'Укажите логин для входа',
+    username_must_match_the_following: 'Логин может содержать только буквы и цифры',
+    password_is_a_required_field: 'Укажите пароль',
+    password_must_match_the_following: 'Пароль может содержать только буквы и цифры',
+    request_failed_with_status_code_401: 'Неверные имя пользователя или пароль',
+    log_out: 'Выйти',
+    log_in: 'Войти',
+    my_first_chat: 'Секретный чат работников палаты №5.1',
+    enter_your_message: 'Введите сообщение...',
+    channels: 'Каналы',
+    messages_one: 'сообщение',
+    messages_few: 'сообщения',
+    messages_many: 'сообщений',
+  },
+};

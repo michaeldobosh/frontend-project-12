@@ -1,0 +1,21 @@
+export default {
+  translation: {
+    enter: 'Come In',
+    your_nickname: 'Your login',
+    password: 'Password',
+    submit: 'Submit',
+    username_is_a_required_field: 'Name is a required field',
+    username_must_match_the_following: 'Login can only contain letters and numbers',
+    password_is_a_required_field: 'Password is a required field',
+    password_must_match_the_following: 'Password can only contain letters and numbers',
+    request_failed_with_status_code_401: 'Invalid username or password',
+    log_out: 'Log out',
+    log_in: 'Log in',
+    my_first_chat: 'My first Chat',
+    enter_your_message: 'Enter your message...',
+    channels: 'Channels',
+    messages_one: 'message',
+    messages_few: 'messages',
+    messages_many: 'messages',
+  },
+};

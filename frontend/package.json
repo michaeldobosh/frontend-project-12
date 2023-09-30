@@ -7,9 +7,12 @@
     "@reduxjs/toolkit": "^1.8.5",
     "axios": "^0.27.2",
     "bootstrap": "^5.2.0",
+    "bootstrap-icons": "^1.11.1",
+    "classnames": "^2.3.2",
     "formik": "^2.2.9",
     "i18next": "^21.9.1",
     "leo-profanity": "^1.6.0",
+    "lodash": "^4.17.21",
     "react": "^18.2.0",
     "react-bootstrap": "^2.5.0",
     "react-dom": "^18.2.0",
@@ -41,6 +44,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "eslint": "^8.23.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-functional": "^4.2.2",
