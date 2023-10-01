@@ -24,7 +24,6 @@ const AuthButton = () => {
 
 const Layout = () => {
   const { t } = useTranslation();
-  console.log(localStorage);
   return (
     <>
       <Navbar className="ps-3" collapseOnSelect bg="light" expand="lg">

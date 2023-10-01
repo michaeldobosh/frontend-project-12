@@ -1,21 +1,24 @@
 import axios from 'axios';
+import { io } from 'socket.io-client';
 import { Formik, Form, Field } from 'formik';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect } from 'react';
 import cn from 'classnames';
 import { useSelector, useDispatch } from 'react-redux';
+import { useImmer } from "use-immer";
 import { Container, Row, Col, Navbar, Nav, Button } from 'react-bootstrap';
 import * as yup from 'yup';
 import _ from 'lodash';
 import routes from '../routes';
 import useAuth from '../hooks/index.jsx';
-import { fetchMessages, sendMessage, removeMessage } from '../slices/messagesSlice';
+import { fetchMessages, addMessage, removeMessage } from '../slices/messagesSlice';
 import { fetchChannels, sendChannel, removeChannel } from '../slices/channelsSlice';
 import { fetchUsers, sendUser, removeUser } from '../slices/usersSlice';
 
+const socket = io('ws://localhost:3000');
+
 const Chat = () => {
-  const auth = useAuth();
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
@@ -25,8 +28,15 @@ const Chat = () => {
     dispatch(fetchUsers());
   }, []);
 
-  const [currentRoom, setRoom] = useState('general');
+  const [{ currentUser, currentRoom }, setCurrent] = useImmer({
+    currentUser: localStorage.getItem('username'),
+    currentRoom: 'general',
+  });
   const { channels, messages, users } = useSelector((state) => state);
+
+  socket.on('newMessage', (newMessage) => {
+    dispatch(addMessage(newMessage));
+  });
 
   const currentRoomMessage = Object.values(messages.entities)
     .filter(({ room }) => currentRoom === room);
@@ -34,9 +44,19 @@ const Chat = () => {
   const data = useSelector((state) => state);
 
   const buttonsClassNames = (room) => cn('w-100 rounded-0 text-start btn', { 'btn-secondary': room === currentRoom });
+  const messagesClassNames = (user) => cn('m-2 p-2 bg-secondary rounded-top-4 rounded-end-4 text-light text-start d-block', { 'align-self-end': user === currentUser });
+
   const onSubmit = ({ message }, actions) => {
-    dispatch(sendMessage({ message, messageUser: 'admin', room: currentRoom }));
+    const username = localStorage.getItem('username');
+    const newMessage = { message, username, room: currentRoom };
+    socket.emit('newMessage', newMessage);
     actions.resetForm();
+  };
+
+  const changeRoom = (name) => {
+    setCurrent((draft) => {
+      draft.currentRoom = name;
+    });
   };
 
   return (
@@ -71,19 +91,33 @@ const Chat = () => {
           <ul className="nav flex-column nav-pills nav-fill px-2 mb-3 overflow-auto h-100 d-block">
             {Object.values(channels.entities).map(({ id, name }) => (
               <li key={id}>
-                <button type="button" className={buttonsClassNames(name)} onClick={() => setRoom(name)}>{`# ${name}`}</button>
+                <button
+                  type="button"
+                  className={buttonsClassNames(name)}
+                  onClick={() => changeRoom(name)}
+                >
+                  {`# ${name}`}
+                </button>
               </li>
             ))}
           </ul>
         </Col>
-        <Col className="py-4 px-5 col-10 text-start" style={{ height: 620, backgroundColor: '#FAFAFA' }}>
-          {messages.entities
-          && currentRoomMessage.map(({
-            id,
-            message,
-            messageUser,
-            room
-          }) => <li key={id}>{message}</li>)}
+        <Col className="p-3 col-10 text-start" style={{ height: 620, backgroundColor: '#FAFAFA' }}>
+          <ul className="d-flex flex-column px-2 mb-3">
+            {messages.entities
+            && currentRoomMessage.map(({
+              id,
+              message,
+              username,
+            }) => (
+              <li key={id} className={messagesClassNames(username)} style={{ minHeight: `${40}px`, width: `${30}rem` }}>
+                <span className="fw-bold">
+                  {`${username}: `}
+                </span>
+                {message}
+              </li>
+            ))}
+          </ul>
         </Col>
         <Col className="py-4 px-5 col-2 border-end border-3 border-light" style={{ height: 100, backgroundColor: '#DADADA' }} />
         <Col className="col-10" style={{ height: 100, backgroundColor: '#FAFAFA' }}>

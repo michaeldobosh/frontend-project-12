@@ -31,6 +31,7 @@ const LoginPage = () => {
       const path = await routes.loginPath();
       const { data: { token } } = await axios.post(path, values);
       localStorage.setItem('userId', JSON.stringify({ token }));
+      localStorage.setItem('username', values.username);
       auth.logIn();
       setAuthError(false);
     } catch (error) {

@@ -38,7 +38,6 @@ const channelsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchChannels.fulfilled, (state, action) => {
-        console.log(action)
         channelsAdapter.addMany(state, action);
       })
       .addCase(sendChannel.fulfilled, channelsAdapter.addOne)
