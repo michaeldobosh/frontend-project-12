@@ -10,101 +10,55 @@ import { useImmer } from "use-immer";
 import { Container, Row, Col, Navbar, Nav, Button } from 'react-bootstrap';
 import * as yup from 'yup';
 import _ from 'lodash';
+import { useSocket, useAuth } from '../hooks/index.jsx';
 import routes from '../routes';
-import useAuth from '../hooks/index.jsx';
-import { fetchMessages, addMessage, removeMessage } from '../slices/messagesSlice';
-import { fetchChannels, sendChannel, removeChannel } from '../slices/channelsSlice';
-import { fetchUsers, sendUser, removeUser } from '../slices/usersSlice';
-
-const socket = io('ws://localhost:3000');
+import { fetchMessages, addMessage, selectors as storeMessages } from '../slices/messagesSlice';
+import { fetchChannels, addChannel, removeChannel, selectors } from '../slices/channelsSlice';
+import { fetchUsers, addUser, removeUser, selectors as storeUsers } from '../slices/usersSlice';
+import Channels from './Channels';
 
 const Chat = () => {
+  const socket = useSocket();
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
   useEffect(() => {
     dispatch(fetchMessages());
     dispatch(fetchChannels());
-    dispatch(fetchUsers());
+    socket.on('newMessage', (newMessage) => {
+      dispatch(addMessage(newMessage));
+    });
   }, []);
 
   const [{ currentUser, currentRoom }, setCurrent] = useImmer({
     currentUser: localStorage.getItem('username'),
-    currentRoom: 'general',
-  });
-  const { channels, messages, users } = useSelector((state) => state);
-
-  socket.on('newMessage', (newMessage) => {
-    dispatch(addMessage(newMessage));
+    currentRoom: { id: 1, name: 'general' },
   });
 
-  const currentRoomMessage = Object.values(messages.entities)
-    .filter(({ room }) => currentRoom === room);
+  const users = useSelector(storeUsers.selectAll);
+  console.log(users);
+  const messages = useSelector(storeMessages.selectAll);
+  const currentRoomMessage = messages.filter(({ room }) => currentRoom.name === room);
 
-  const data = useSelector((state) => state);
-
-  const buttonsClassNames = (room) => cn('w-100 rounded-0 text-start btn', { 'btn-secondary': room === currentRoom });
-  const messagesClassNames = (user) => cn('m-2 p-2 bg-secondary rounded-top-4 rounded-end-4 text-light text-start d-block', { 'align-self-end': user === currentUser });
+  const messagesClassNames = (user) => cn(
+    'm-2 p-2 bg-secondary rounded-top-4 rounded-end-4 text-light text-start d-block',
+    { 'align-self-end': user === currentUser },
+  );
 
   const onSubmit = ({ message }, actions) => {
     const username = localStorage.getItem('username');
-    const newMessage = { message, username, room: currentRoom };
+    const newMessage = { message, username, room: currentRoom.name, channelId: currentRoom.id };
     socket.emit('newMessage', newMessage);
     actions.resetForm();
-  };
-
-  const changeRoom = (name) => {
-    setCurrent((draft) => {
-      draft.currentRoom = name;
-    });
   };
 
   return (
     <Container className="w-75 d-md-block shadow" style={{ height: 800 }}>
       <Row className="row-cols-3">
-        <Col
-          className="p-4 col-1 fw-bold d-md-block border-bottom border-3 border-light"
-          style={{ height: 80, backgroundColor: '#DADADA' }}
-        >
-          {t('channels')}
-        </Col>
-        <Col
-          className="p-3 col-1 border-end border-bottom border-3 border-light"
-          style={{ height: 80, backgroundColor: '#DADADA' }}
-        >
-          <button type="button" className="btn btn-lg mx-4 p-1">
-            <i className="bi bi-clipboard-plus" />
-          </button>
-        </Col>
-        <Col
-          className="p-3 col-10 border-bottom border-3 border-light"
-          style={{ height: 80, backgroundColor: '#DADADA' }}
-        >
-          <span className="fw-bold">{`# ${currentRoom}`}</span>
-          <br />
-          <span>{`${currentRoomMessage.length} ${t('messages', { count: currentRoomMessage.length })}`}</span>
-        </Col>
-        <Col
-          className="py-4 px-0 col-2 border-end border-3 border-light"
-          style={{ height: 620, backgroundColor: '#DADADA' }}
-        >
-          <ul className="nav flex-column nav-pills nav-fill px-2 mb-3 overflow-auto h-100 d-block">
-            {Object.values(channels.entities).map(({ id, name }) => (
-              <li key={id}>
-                <button
-                  type="button"
-                  className={buttonsClassNames(name)}
-                  onClick={() => changeRoom(name)}
-                >
-                  {`# ${name}`}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </Col>
-        <Col className="p-3 col-10 text-start" style={{ height: 620, backgroundColor: '#FAFAFA' }}>
+        <Channels currentRoom={currentRoom} setRoom={setCurrent} />
+        <Col className="p-3 col-10 text-start overflow-y-auto" style={{ height: 620, backgroundColor: '#FAFAFA' }}>
           <ul className="d-flex flex-column px-2 mb-3">
-            {messages.entities
+            {messages
             && currentRoomMessage.map(({
               id,
               message,

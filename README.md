@@ -1,7 +1,7 @@
 [![Actions Status](https://github.com/michaeldobosh/frontend-project-12/workflows/hexlet-check/badge.svg)](https://github.com/michaeldobosh/frontend-project-12/actions)
 
 ### Чат (Slack)
-On-line приложения для общения в режиме реального времени!
+On-line приложение для общения в режиме реального времени!
 
 ### Установка для разработчиков
 1. git clone git@github.com:michaeldobosh/frontend-project-12.git

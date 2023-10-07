@@ -13,7 +13,7 @@ import {
 } from 'react-bootstrap';
 import * as yup from 'yup';
 import routes from '../routes';
-import useAuth from '../hooks/index.jsx';
+import { useAuth } from '../hooks/index.jsx';
 import chat from '../web-chat.png';
 
 const validateForm = yup.object().shape({
@@ -37,7 +37,8 @@ const LoginPage = () => {
     } catch (error) {
       actions.setSubmitting(false);
       if (error.isAxiosError && error.response.status === 401) {
-        setAuthError({ authError: true, errorText: error.message.replaceAll(' ', '_').toLowerCase() });
+        setAuthError({ authError: true, errorText: error.message
+          .replaceAll(' ', '_').toLowerCase() });
       }
     }
   };
@@ -118,7 +119,7 @@ const LoginPage = () => {
             <Navbar.Text className="text-dark align-center">Нет аккаунта?</Navbar.Text>
           </Nav>
           <Nav className="mr-auto">
-            <Button as={Link} to="/reg" className="ms-3">Регистрация</Button>
+            <Button as={Link} to="/signup" className="ms-3">Регистрация</Button>
           </Nav>
         </Navbar.Collapse>
       </Navbar>

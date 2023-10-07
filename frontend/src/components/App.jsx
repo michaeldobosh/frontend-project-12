@@ -13,8 +13,9 @@ import Layout from './Layout';
 import Chat from './Chat';
 import LoginPage from './Login';
 import Error from './Error404';
-import UserContext from '../contexts/index.jsx';
-import useAuth from '../hooks/index.jsx';
+import Registration from './Signup';
+import { UserContext } from '../contexts/index.jsx';
+import { useAuth } from '../hooks/index.jsx';
 import getAuthHeader from '../getAuthHeader.js';
 
 const AuthProvider = ({ children }) => {
@@ -60,6 +61,7 @@ const App = () => {
           <Route path="/" element={<Layout />}>
             <Route index element={<PrivateRoute><Chat /></PrivateRoute>} />
             <Route path="login" element={<PrivateRoute2><LoginPage /></PrivateRoute2>} />
+            <Route path="signup" element={<PrivateRoute2><Registration /></PrivateRoute2>} />
             <Route path="*" element={<Error />} />
           </Route>
         </Routes>
