@@ -18,6 +18,9 @@ const init = async (socket) => {
       lng: defaultLang,
       debug: false,
       resources,
+      interpolation: {
+        escapeValue: false,
+      },
     });
 
   const SocketProvider = ({ children }) => (

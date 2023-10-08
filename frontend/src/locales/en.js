@@ -1,5 +1,6 @@
 export default {
   translation: {
+    default: 'Validation error',
     enter: 'Come In',
     your_nickname: 'Your login',
     password: 'Password',
@@ -22,7 +23,7 @@ export default {
     messages_one: 'message',
     messages_few: 'messages',
     messages_many: 'messages',
-    name_must_not_be_one_of_the_following_values: 'A channel with the same name already exists',
+    must_be_unique: 'Must be unique',
     add_channel: 'Add channel',
     remove_channel: 'Remove channel',
     remove: 'Remove',
@@ -30,5 +31,9 @@ export default {
     rename: 'Rename',
     cancel: 'Отменить',
     convinced: 'Convinced?',
+    no_account: 'No account?',
+    newChannel: 'Channel created',
+    renameChannel: 'Channel renamed',
+    removeChannel: 'Channel removed',
   },
 };

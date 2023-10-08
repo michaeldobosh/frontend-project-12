@@ -1,5 +1,6 @@
 export default {
   translation: {
+    default: 'Ошибка валидации',
     enter: 'Войти',
     your_nickname: 'Имя пользователя',
     password: 'Пароль',
@@ -22,7 +23,7 @@ export default {
     messages_one: 'сообщение',
     messages_few: 'сообщения',
     messages_many: 'сообщений',
-    name_must_not_be_one_of_the_following_values: 'Канал с таким именем уже существует',
+    must_be_unique: 'Должно быть уникальным',
     add_channel: 'Добавить канал',
     remove_channel: 'Удалить канал',
     remove: 'Удалить',
@@ -30,5 +31,9 @@ export default {
     rename: 'Переименовать',
     cancel: 'Отменить',
     convinced: 'Уверены?',
+    no_account: 'Нет аккаунта?',
+    newChannel: 'Канал создан',
+    renameChannel: 'Канал переименован',
+    removeChannel: 'Канал удален',
   },
 };

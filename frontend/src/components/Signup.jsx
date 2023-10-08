@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { Formik, Form as Forma, Field } from 'formik';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import {
@@ -12,23 +11,12 @@ import {
   Form,
 } from 'react-bootstrap';
 import * as yup from 'yup';
-import { setLocale } from 'yup';
-import cn from 'classnames';
 import routes from '../routes';
 import { useAuth } from '../hooks/index.jsx';
+import setLocale from '../setLocale';
 import join from '../join.png';
 
-setLocale({
-  mixed: {
-    default: 'Ошибка валидации',
-    required: 'is_a_required_field',
-    oneOf: 'password_mismatch',
-  },
-  string: {
-    min: 'min_${min}',
-    max: 'max_${max}',
-  },
-});
+setLocale();
 
 const validateForm = yup.object().shape({
   username: yup.string().min(3).max(20).required()
@@ -40,6 +28,7 @@ const validateForm = yup.object().shape({
 const Registration = () => {
   const { t } = useTranslation();
   const auth = useAuth();
+
   const [{ signUpError, errorText }, setSignUpError] = useState({ signUpError: false, errorText: '' });
 
   const onSubmit = async (values, actions) => {
@@ -68,7 +57,7 @@ const Registration = () => {
         <Col md="6">
           <Image src={join} alt="chat" className="w-100" />
         </Col>
-        <Col md="5">
+        <Col md="5" className="position-relative">
           <Formik
             initialValues={{
               username: '',
@@ -82,7 +71,7 @@ const Registration = () => {
               const showErrors = (fieldName) => {
                 if (errors[fieldName] && touched[fieldName]) {
                   return (
-                    <Form.Text className="text-danger fs-5">
+                    <Form.Text className="position-absolute top-25 start-25 px-3 py-1 bg-danger rounded-1 text-white opacity-75">
                       {t(errors[fieldName])}
                     </Form.Text>
                   );
@@ -93,7 +82,7 @@ const Registration = () => {
               return (
                 <Form as={Forma}>
                   <Form.Text className="fs-1 text-center">{t('reg')}</Form.Text>
-                  <Form.Group controlId="formBasicEmail">
+                  <Form.Group controlId="formBasicName" className="pb-2">
                     <Form.Label />
                     <Form.Control
                       as={Field}
@@ -106,7 +95,7 @@ const Registration = () => {
                     {showErrors('username')}
                   </Form.Group>
 
-                  <Form.Group controlId="formBasicPassword">
+                  <Form.Group controlId="formBasicPassword" className="pb-2">
                     <Form.Label />
                     <Form.Control
                       as={Field}
@@ -120,7 +109,7 @@ const Registration = () => {
                     {showErrors('password')}
                   </Form.Group>
 
-                  <Form.Group className="mb-3" controlId="formBasicconfirm">
+                  <Form.Group controlId="formBasicconfirm" className="pb-2">
                     <Form.Label />
                     <Form.Control
                       as={Field}
@@ -134,7 +123,7 @@ const Registration = () => {
                   </Form.Group>
                   {signUpError
                   && <Form.Text className="text-danger fs-5">{t(errorText)}</Form.Text>}
-                  <Button variant="outline-primary" className="mt-3 w-100 rounded-1" type="submit">
+                  <Button variant="outline-primary" className="mt-4 w-100 rounded-1" type="submit">
                     {t('signup')}
                   </Button>
                 </Form>

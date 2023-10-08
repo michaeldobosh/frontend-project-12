@@ -1,100 +1,105 @@
-import axios from 'axios';
-import { io } from 'socket.io-client';
-import { Formik, Form, Field } from 'formik';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect } from 'react';
 import cn from 'classnames';
 import { useSelector, useDispatch } from 'react-redux';
-import { useImmer } from "use-immer";
-import { Container, Row, Col, Navbar, Nav, Button } from 'react-bootstrap';
-import * as yup from 'yup';
-import _ from 'lodash';
-import { useSocket, useAuth } from '../hooks/index.jsx';
-import routes from '../routes';
+import {
+  Container,
+  Row,
+  Col,
+  Button,
+  Form,
+  ListGroup,
+} from 'react-bootstrap';
+import filter from 'leo-profanity';
+import { useSocket } from '../hooks/index.jsx';
 import { fetchMessages, addMessage, selectors as storeMessages } from '../slices/messagesSlice';
-import { fetchChannels, addChannel, removeChannel, selectors } from '../slices/channelsSlice';
-import { fetchUsers, addUser, removeUser, selectors as storeUsers } from '../slices/usersSlice';
+import { fetchChannels, setCurrentChannel } from '../slices/channelsSlice';
 import Channels from './Channels';
 
 const Chat = () => {
+  filter.loadDictionary('ru');
   const socket = useSocket();
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
+  const [chatMessage, setMessage] = useState('');
+
   useEffect(() => {
     dispatch(fetchMessages());
     dispatch(fetchChannels());
+    dispatch(setCurrentChannel({ id: 1, name: 'general' }));
     socket.on('newMessage', (newMessage) => {
       dispatch(addMessage(newMessage));
+      setMessage('');
     });
   }, []);
 
-  const [{ currentUser, currentRoom }, setCurrent] = useImmer({
-    currentUser: localStorage.getItem('username'),
-    currentRoom: { id: 1, name: 'general' },
-  });
-
-  const users = useSelector(storeUsers.selectAll);
-  console.log(users);
+  const currentChannel = useSelector((state) => state.channels.currentChannel);
+  const currentUser = localStorage.getItem('username');
   const messages = useSelector(storeMessages.selectAll);
-  const currentRoomMessage = messages.filter(({ room }) => currentRoom.name === room);
+  const currentChannelMessage = messages
+    .filter(({ messageChannel }) => currentChannel.name === messageChannel);
 
   const messagesClassNames = (user) => cn(
-    'm-2 p-2 bg-secondary rounded-top-4 rounded-end-4 text-light text-start d-block',
+    'm-2 p-2 rounded-top-4 rounded-end-4 text-start d-block',
     { 'align-self-end': user === currentUser },
   );
 
-  const onSubmit = ({ message }, actions) => {
-    const username = localStorage.getItem('username');
-    const newMessage = { message, username, room: currentRoom.name, channelId: currentRoom.id };
+  const variantMessage = (user) => cn({
+    success: user === currentUser,
+    dark: user !== currentUser,
+  });
+
+  const onSubmit = (evt) => {
+    evt.preventDefault();
+    const newMessage = {
+      message: filter.clean(chatMessage),
+      username: currentUser,
+      messageChannel: currentChannel.name,
+      channelId: currentChannel.id,
+    };
     socket.emit('newMessage', newMessage);
-    actions.resetForm();
   };
 
   return (
     <Container className="w-75 d-md-block shadow" style={{ height: 800 }}>
       <Row className="row-cols-3">
-        <Channels currentRoom={currentRoom} setRoom={setCurrent} />
-        <Col className="p-3 col-10 text-start overflow-y-auto" style={{ height: 620, backgroundColor: '#FAFAFA' }}>
-          <ul className="d-flex flex-column px-2 mb-3">
+        <Channels />
+        <Col className="p-3 col-10 text-start overflow-y-auto" style={{ height: 650, backgroundColor: '#FAFAFA' }}>
+          <ListGroup className="d-flex flex-column px-2 mb-3">
             {messages
-            && currentRoomMessage.map(({
+            && currentChannelMessage.map(({
               id,
               message,
               username,
             }) => (
-              <li key={id} className={messagesClassNames(username)} style={{ minHeight: `${40}px`, width: `${30}rem` }}>
+              <ListGroup.Item key={id} variant={variantMessage(username)} className={messagesClassNames(username)} style={{ minHeight: `${40}px`, width: `${30}rem` }}>
                 <span className="fw-bold">
                   {`${username}: `}
                 </span>
                 {message}
-              </li>
+              </ListGroup.Item>
             ))}
-          </ul>
+          </ListGroup>
         </Col>
-        <Col className="py-4 px-5 col-2 border-end border-3 border-light" style={{ height: 100, backgroundColor: '#DADADA' }} />
-        <Col className="col-10" style={{ height: 100, backgroundColor: '#FAFAFA' }}>
-          <Formik
-            initialValues={{ message: '' }}
-            onSubmit={onSubmit}
-          >
-            <Form className="position-relative top-50">
-              <div className="input-group">
-                <Field
-                  type="message"
-                  name="message"
-                  className="form-control"
-                  id="exampleInputMessage"
-                  autoComplete="message"
-                  placeholder={t('enter_your_message')}
-                />
-                <button type="submit" className="input-group-text">
-                  <i className="bi bi-arrow-right-circle" />
-                </button>
-              </div>
-            </Form>
-          </Formik>
+        <Col className="py-4 px-5 col-2 border-end border-3 border-light bg-secondary bg-opacity-50" />
+        <Col className="col-10 bg-secondary bg-opacity-50" style={{ height: 70, backgroundColor: '#FAFAFA' }}>
+          <Form className="px-1 py-3" onSubmit={onSubmit}>
+            <Form.Group controlId="exampleInputMessage" className="input-group-text p-0 bg-white">
+              <Form.Control
+                autoFocus
+                type="message"
+                name="message"
+                value={chatMessage}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder={t('enter_your_message')}
+                className="border-0"
+              />
+              <Button type="submit" variant="outline" className="input-group-text border-0" disabled={!chatMessage}>
+                <i className="bi bi-arrow-right-circle" />
+              </Button>
+            </Form.Group>
+          </Form>
         </Col>
       </Row>
     </Container>

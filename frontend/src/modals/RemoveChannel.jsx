@@ -1,25 +1,26 @@
 import { useTranslation } from 'react-i18next';
 import { Modal, Button, Form } from 'react-bootstrap';
 
-const RemoveChannel = ({ handleChannel, hideModal, current }) => {
+const RemoveChannel = ({ handleChannel, handleClose, modal }) => {
   const { t } = useTranslation();
 
   const onSubmit = (evt) => {
     evt.preventDefault();
-    handleChannel(current);
+    handleChannel(modal.id);
+    handleClose();
   };
 
   return (
-    <Modal show>
-      <Modal.Header closeButton onHide={hideModal}>
+    <Modal show={modal.action} onHide={handleClose}>
+      <Modal.Header closeButton>
         <Modal.Title>{t('remove_channel')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={onSubmit}>
           <Form.Text className="fs-5">{t('convinced')}</Form.Text>
           <div className="modal-footer">
-            <Button className="btn-secondary" onClick={hideModal}>{t('cancel')}</Button>
-            <Button type="submit" className="btn-danger">{t('remove')}</Button>
+            <Button variant="secondary" onClick={handleClose}>{t('cancel')}</Button>
+            <Button type="submit" variant="danger">{t('remove')}</Button>
           </div>
         </Form>
       </Modal.Body>
