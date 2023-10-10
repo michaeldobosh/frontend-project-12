@@ -23,15 +23,26 @@ const init = async (socket) => {
       },
     });
 
-  const SocketProvider = ({ children }) => (
-    <SocketContext.Provider value={socket}>
-      {children}
-    </SocketContext.Provider>
-  );
+  const SocketProvider = ({ children }) => {
+    const getResult = (...args) => new Promise((resolve, reject) => {
+      socket.timeout(3000).emit(...args, (error, response) => {
+        if (response?.status === 'ok') {
+          resolve(response);
+        }
+        reject(error);
+      });
+    });
+
+    return (
+      <SocketContext.Provider value={{ socket, getResult }}>
+        {children}
+      </SocketContext.Provider>
+    );
+  };
 
   return (
     <Provider store={store}>
-      <SocketProvider value={socket}>
+      <SocketProvider>
         <App />
       </SocketProvider>
     </Provider>

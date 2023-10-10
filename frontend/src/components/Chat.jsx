@@ -17,49 +17,57 @@ import { fetchChannels, setCurrentChannel } from '../slices/channelsSlice';
 import Channels from './Channels';
 
 const Chat = () => {
-  filter.loadDictionary('ru');
-  const socket = useSocket();
-  const dispatch = useDispatch();
+  const { socket, getResult } = useSocket();
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  filter.loadDictionary('ru');
 
   const [chatMessage, setMessage] = useState('');
 
-  useEffect(() => {
-    dispatch(fetchMessages());
-    dispatch(fetchChannels());
-    dispatch(setCurrentChannel({ id: 1, name: 'general' }));
-    socket.on('newMessage', (newMessage) => {
-      dispatch(addMessage(newMessage));
-      setMessage('');
-    });
-  }, []);
-
+  const defaultChannel = { id: 1, name: 'general' };
   const currentChannel = useSelector((state) => state.channels.currentChannel);
   const currentUser = localStorage.getItem('username');
   const messages = useSelector(storeMessages.selectAll);
   const currentChannelMessage = messages
     .filter(({ messageChannel }) => currentChannel.name === messageChannel);
 
+  useEffect(() => {
+    dispatch(fetchMessages());
+    dispatch(fetchChannels());
+    dispatch(setCurrentChannel(defaultChannel));
+    socket.on('newMessage', (newMessage) => {
+      dispatch(addMessage(newMessage));
+      setMessage('');
+    });
+  }, []);
+
+  const sendMessage = (message) => getResult('newMessage', message);
+
+  const onSubmit = async (evt) => {
+    evt.preventDefault();
+    const newMessage = {
+      message: filter.clean(chatMessage),
+      messageChannel: currentChannel.name,
+      channelId: currentChannel.id,
+      username: currentUser,
+    };
+
+    try {
+      await sendMessage(newMessage);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const variantMessage = (user) => cn({
+    primary: user === currentUser,
+    dark: user !== currentUser,
+  });
+
   const messagesClassNames = (user) => cn(
     'm-2 p-2 rounded-top-4 rounded-end-4 text-start d-block',
     { 'align-self-end': user === currentUser },
   );
-
-  const variantMessage = (user) => cn({
-    success: user === currentUser,
-    dark: user !== currentUser,
-  });
-
-  const onSubmit = (evt) => {
-    evt.preventDefault();
-    const newMessage = {
-      message: filter.clean(chatMessage),
-      username: currentUser,
-      messageChannel: currentChannel.name,
-      channelId: currentChannel.id,
-    };
-    socket.emit('newMessage', newMessage);
-  };
 
   return (
     <Container className="w-75 d-md-block shadow" style={{ height: 800 }}>
@@ -68,11 +76,7 @@ const Chat = () => {
         <Col className="p-3 col-10 text-start overflow-y-auto" style={{ height: 650, backgroundColor: '#FAFAFA' }}>
           <ListGroup className="d-flex flex-column px-2 mb-3">
             {messages
-            && currentChannelMessage.map(({
-              id,
-              message,
-              username,
-            }) => (
+            && currentChannelMessage.map(({ id, message, username }) => (
               <ListGroup.Item key={id} variant={variantMessage(username)} className={messagesClassNames(username)} style={{ minHeight: `${40}px`, width: `${30}rem` }}>
                 <span className="fw-bold">
                   {`${username}: `}
@@ -96,7 +100,7 @@ const Chat = () => {
                 className="border-0"
               />
               <Button type="submit" variant="outline" className="input-group-text border-0" disabled={!chatMessage}>
-                <i className="bi bi-arrow-right-circle" />
+                <i className="bi bi-chat-text" />
               </Button>
             </Form.Group>
           </Form>

@@ -8,7 +8,6 @@ import {
   Row,
   Col,
   Navbar,
-  Nav,
   Image,
   Button,
   Form,
@@ -17,7 +16,8 @@ import * as yup from 'yup';
 import routes from '../routes';
 import { useAuth } from '../hooks/index.jsx';
 import setLocale from '../setLocale';
-import chat from '../web-chat.png';
+import Version from './Version';
+import chat from '../img/web-chat.png';
 
 setLocale();
 
@@ -53,9 +53,10 @@ const LoginPage = () => {
 
   return (
     <>
-      <Container className="bg-light border border-2 w-50 p-3 pr-5">
-        <Row className="mt-5 mb-5">
-          <Col md="6" className="m-4">
+      <Container className="bg-light border border-2 w-50 p-1 pr-5">
+        <Version />
+        <Row className="mt-3 mb-5">
+          <Col md="6" className="m-4 position-relative">
             <Image src={chat} alt="chat" className="w-100" />
           </Col>
           <Col md="5" className="position-relative">
@@ -100,14 +101,14 @@ const LoginPage = () => {
                         type="password"
                         placeholder={t('password')}
                         name="password"
-                        className={errors.username
-                          && touched.username ? 'is-invalid' : null}
+                        className={errors.password
+                          && touched.password ? 'is-invalid' : null}
                       />
                       {showErrors('password')}
                     </Form.Group>
 
                     {isAuthError
-                    && <Form.Text className="text-danger fs-5">{t(errorText)}</Form.Text>}
+                    && <Form.Text className="text-danger fs-6">{t(errorText)}</Form.Text>}
                     <Button type="submit" variant="outline-primary" className="mt-4 w-100 rounded-1">
                       <i className="bi bi-box-arrow-in-right" />
                       { t('submit')}
@@ -119,16 +120,15 @@ const LoginPage = () => {
           </Col>
         </Row>
       </Container>
-      <Navbar className="fixed-bottom navbar-dark bg-light ps-5">
-        <Navbar.Toggle aria-controls="nav" />
-        <Navbar.Collapse id="nav">
-          <Nav>
-            <Navbar.Text className="text-dark align-center">{t('no_account')}</Navbar.Text>
-          </Nav>
-          <Nav className="mr-auto">
-            <Button as={Link} to="/signup" className="ms-3">{t('reg')}</Button>
-          </Nav>
-        </Navbar.Collapse>
+      <Navbar className="fixed-bottom" collapseOnSelect bg="light" expand="lg">
+        <Container className="d-block w-50">
+          <Row>
+            <Col className="p-0 d-flex justify-content-center">
+              <Navbar.Brand>{t('no_account')}</Navbar.Brand>
+              <Button as={Link} variant="outline-secondary" to="/signup" className="ms-3">{t('reg')}</Button>
+            </Col>
+          </Row>
+        </Container>
       </Navbar>
     </>
   );

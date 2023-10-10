@@ -8,81 +8,71 @@ import {
   ButtonGroup,
   Dropdown,
 } from 'react-bootstrap';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import { useSocket } from '../hooks/index.jsx';
-import { selectors as storeMessages } from '../slices/messagesSlice';
+import { selectors as extractMessages } from '../slices/messagesSlice';
 import {
   addChannel,
   removeChannel,
   renameChannel,
   setCurrentChannel,
-  selectors as storeChannels,
+  selectors as extractChannels,
 } from '../slices/channelsSlice';
 import getModal from '../modals/index.js';
 
-const renderModal = (handleChannel, handleClose, modal) => {
-  if (!modal.action) return null;
+const renderModal = (api, handleClose, modals) => {
+  if (!modals.action) return null;
 
-  const Component = getModal(modal.action);
-  return <Component handleChannel={handleChannel} handleClose={handleClose} modal={modal} />;
+  const Component = getModal(modals.action);
+  return <Component api={api} handleClose={handleClose} modalsInfo={modals} />;
 };
 
 const Channels = () => {
-  const socket = useSocket();
+  const { socket, getResult } = useSocket();
   const dispatch = useDispatch();
   const { t } = useTranslation();
 
-  const [modalInfo, setModal] = useState({});
-  const notify = (message) => toast.success(message);
+  const [modalsInfo, setModalsInfo] = useState({});
 
-  const messages = useSelector(storeMessages.selectAll);
-  const channels = useSelector(storeChannels.selectAll);
+  const defaultChannel = { id: 1, name: 'general' };
+  const messages = useSelector(extractMessages.selectAll);
+  const channels = useSelector(extractChannels.selectAll);
   const currentChannel = useSelector((state) => state.channels.currentChannel);
-  const currentUser = localStorage.getItem('username');
-
-  const currentChannelMessage = messages
+  const currentChannelMessages = messages
     .filter(({ messageChannel }) => currentChannel.name === messageChannel);
+
+  const api = {
+    addChannel: (channel) => getResult('newChannel', channel),
+    renameChannel: (channel) => getResult('renameChannel', channel),
+    removeChannel: (channel) => getResult('removeChannel', channel),
+  };
 
   socket.on('newChannel', (data) => {
     dispatch(addChannel(data));
-    if (data.username === currentUser) {
-      dispatch(setCurrentChannel(data));
-    }
   });
   socket.on('renameChannel', (data) => {
     dispatch(renameChannel(data));
     if (currentChannel?.id === data.id) {
-      dispatch(setCurrentChannel(data));
+      dispatch(setCurrentChannel({ id: data.id, name: data.name }));
     }
   });
   socket.on('removeChannel', (data) => {
     dispatch(removeChannel(data.id));
     if (currentChannel?.id === data.id) {
-      dispatch(setCurrentChannel({ name: 'general', id: 1 }));
+      dispatch(setCurrentChannel(defaultChannel));
     }
   });
 
   const handleShow = (evt) => {
     const modal = {
       action: evt.target.dataset.action,
-      id: evt.target.dataset.id,
-      name: evt.target.dataset.name,
+      selectedСhannelId: evt.target.dataset.id,
+      selectedChannelName: evt.target.dataset.name,
     };
 
-    setModal(modal);
+    setModalsInfo(modal);
   };
-  const handleClose = () => setModal({});
-
-  const handleChannel = (currentId, name) => {
-    const dataChannel = {
-      name,
-      username: currentUser,
-      id: currentId,
-    };
-
-    Promise.resolve(socket.emit(modalInfo.action, dataChannel));
-    notify(t(modalInfo.action));
-  };
+  const handleClose = () => setModalsInfo({});
 
   const classNames = (messageChannel) => cn(
     'w-100 rounded-0 text-start text-truncate',
@@ -154,21 +144,22 @@ const Channels = () => {
       >
         <Button
           variant="outside"
-          className="mx-3 p-0 bi-clipboard-plus text-primary fs-4"
+          className="mx-3 p-0 bi-plus-square text-primary fs-4"
           data-action="newChannel"
           onClick={handleShow}
         />
       </Col>
-      {renderModal(handleChannel, handleClose, modalInfo)}
+      {renderModal(api, handleClose, modalsInfo)}
       <Col
         className="p-3 col-10 border-bottom border-3 border-light bg-secondary bg-opacity-50"
       >
         <span className="fw-bold">{`# ${currentChannel?.name}`}</span>
         <br />
-        <span>{`${currentChannelMessage.length} ${t('messages', { count: currentChannelMessage.length })}`}</span>
+        <span>{`${currentChannelMessages.length} ${t('messages', { count: currentChannelMessages.length })}`}</span>
       </Col>
       <Col
         className="py-4 px-0 col-2 border-end border-3 border-light bg-secondary bg-opacity-50"
+        style={{ height: 650 }}
       >
         {renderChannels()}
       </Col>

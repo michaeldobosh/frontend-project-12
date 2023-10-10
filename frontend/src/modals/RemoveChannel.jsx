@@ -1,17 +1,20 @@
 import { useTranslation } from 'react-i18next';
+import { toast } from 'react-toastify';
 import { Modal, Button, Form } from 'react-bootstrap';
 
-const RemoveChannel = ({ handleChannel, handleClose, modal }) => {
+const RemoveChannel = ({ api, handleClose, modalsInfo }) => {
   const { t } = useTranslation();
+  const notify = (message) => toast.success(message);
 
-  const onSubmit = (evt) => {
+  const onSubmit = async (evt) => {
     evt.preventDefault();
-    handleChannel(modal.id);
+    api.removeChannel({ id: modalsInfo.selectedСhannelId });
     handleClose();
+    notify(t(modalsInfo.action));
   };
 
   return (
-    <Modal show={modal.action} onHide={handleClose}>
+    <Modal show={modalsInfo.action} onHide={handleClose}>
       <Modal.Header closeButton>
         <Modal.Title>{t('remove_channel')}</Modal.Title>
       </Modal.Header>

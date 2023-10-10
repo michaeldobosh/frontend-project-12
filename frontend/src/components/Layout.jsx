@@ -6,7 +6,6 @@ import {
   Col,
   Button,
   Navbar,
-  Nav,
 } from 'react-bootstrap';
 import { useAuth } from '../hooks/index.jsx';
 
@@ -17,8 +16,8 @@ const AuthButton = () => {
 
   return (
     auth.loggedIn
-      ? <Button onClick={auth.logOut}>{t('log_out')}</Button>
-      : <Button as={Link} to="login" state={{ from: location }}>{t('log_in')}</Button>
+      ? <Button onClick={auth.logOut} variant="outline-secondary">{t('log_out')}</Button>
+      : <Button as={Link} variant="outline-secondary" to="login" state={{ from: location }}>{t('log_in')}</Button>
   );
 };
 
@@ -26,18 +25,16 @@ const Layout = () => {
   const { t } = useTranslation();
   return (
     <>
-      <Navbar className="ps-3" collapseOnSelect bg="light" expand="lg">
-        <Navbar.Brand className="col-6 text-center" as={Link} to="/">{t('my_first_chat')}</Navbar.Brand>
-        <Col className="col-2" />
-        <Nav className="col-1">
-          <AuthButton />
-        </Nav>
+      <Navbar className="mb-5" collapseOnSelect bg="light" expand="lg">
+        <Container className="d-block w-75">
+          <Row>
+            <Col className="p-0 d-flex justify-content-between">
+              <Navbar.Brand as={Link} to="/">{t('brand_badge')}</Navbar.Brand>
+              <AuthButton />
+            </Col>
+          </Row>
+        </Container>
       </Navbar>
-      <Container>
-        <Row className="mt-4">
-          <Col md="5" />
-        </Row>
-      </Container>
       <Outlet />
     </>
   );

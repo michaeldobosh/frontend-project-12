@@ -2,44 +2,48 @@ import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { Modal, Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
+import { toast } from 'react-toastify';
 import { Formik, Form as Forma, Field } from 'formik';
 import { selectors } from '../slices/channelsSlice';
 import setLocale from '../setLocale';
 
 setLocale();
 
-const RenameChannel = ({ handleChannel, handleClose, modal }) => {
+const RenameChannel = ({
+  api,
+  handleClose,
+  modalsInfo: { action, selectedChannelName, selectedСhannelId },
+}) => {
   const { t } = useTranslation();
+  const notify = (message) => toast.success(message);
 
-  const currentChannel = useSelector((state) => state.channels.currentChannel);
   const channelsNames = useSelector(selectors.selectAll)
     .map((c) => c.name)
-    .filter((name) => name !== modal.name);
-
-  console.log(channelsNames);
+    .filter((name) => name !== selectedChannelName);
 
   const validateSchema = yup.object({
-    channelName: yup.string().min(3).max(20).required()
+    name: yup.string().min(3).max(20).required()
       .notOneOf(channelsNames),
   });
 
-  const onSubmit = async ({ channelName }, actions) => {
+  const onSubmit = async ({ name }, actions) => {
     try {
-      await handleChannel(currentChannel.id, channelName);
+      await api.renameChannel({ id: selectedСhannelId, name });
       await handleClose();
+      notify(t(action));
     } catch (e) {
       await actions.setSubmitting(false);
     }
   };
 
   return (
-    <Modal show={modal.action} onHide={handleClose}>
+    <Modal show={action} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>{t('add_channel')}</Modal.Title>
+        <Modal.Title>{t('rename_channel')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Formik
-          initialValues={{ channelName: modal.name }}
+          initialValues={{ name: selectedChannelName }}
           validationSchema={validateSchema}
           onSubmit={onSubmit}
         >
@@ -50,12 +54,12 @@ const RenameChannel = ({ handleChannel, handleClose, modal }) => {
                   as={Field}
                   autoFocus
                   type="text"
-                  name="channelName"
-                  className={errors.channelName
+                  name="name"
+                  className={errors.name
                     && submitCount ? 'is-invalid' : null}
                 />
                 <Form.Control.Feedback type="invalid">
-                  {errors.channelName && submitCount ? t(errors.channelName) : null}
+                  {errors.name && submitCount ? t(errors.name) : null}
                 </Form.Control.Feedback>
               </Form.Group>
               <Modal.Footer>

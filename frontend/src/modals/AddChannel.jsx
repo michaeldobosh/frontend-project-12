@@ -1,18 +1,20 @@
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Modal, Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
+import { toast } from 'react-toastify';
 import { Formik, Form as Forma, Field } from 'formik';
-import { selectors } from '../slices/channelsSlice';
+import { selectors, setCurrentChannel } from '../slices/channelsSlice';
 import setLocale from '../setLocale';
 
 setLocale();
 
-const AddChannel = ({ handleChannel, handleClose, modal }) => {
+const AddChannel = ({ api, handleClose, modalsInfo }) => {
   const { t } = useTranslation();
+  const notify = (message) => toast.success(message);
+  const dispatch = useDispatch();
 
   const channelsNames = useSelector(selectors.selectAll).map((c) => c.name);
-  const currentChannel = useSelector((state) => state.channels.currentChannel);
 
   const validateSchema = yup.object({
     channelName: yup.string().min(3).max(20).required()
@@ -21,15 +23,17 @@ const AddChannel = ({ handleChannel, handleClose, modal }) => {
 
   const onSubmit = async ({ channelName }, actions) => {
     try {
-      await handleChannel(currentChannel.id, channelName);
+      const response = await api.addChannel({ name: channelName });
+      await dispatch(setCurrentChannel(response.data));
       await handleClose();
+      notify(t(modalsInfo.action));
     } catch (e) {
       await actions.setSubmitting(false);
     }
   };
 
   return (
-    <Modal show={modal.action} onHide={handleClose}>
+    <Modal show={modalsInfo.action} onHide={handleClose}>
       <Modal.Header closeButton>
         <Modal.Title>{t('add_channel')}</Modal.Title>
       </Modal.Header>

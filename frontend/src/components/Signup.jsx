@@ -14,7 +14,8 @@ import * as yup from 'yup';
 import routes from '../routes';
 import { useAuth } from '../hooks/index.jsx';
 import setLocale from '../setLocale';
-import join from '../join.png';
+import Version from './Version';
+import join from '../img/join.png';
 
 setLocale();
 
@@ -52,7 +53,8 @@ const Registration = () => {
   };
 
   return (
-    <Container className="p-5 bg-light border border-2 w-50">
+    <Container className="p-1 pb-5 bg-light border border-2 w-50">
+      <Version />
       <Row>
         <Col md="6">
           <Image src={join} alt="chat" className="w-100" />
@@ -122,7 +124,7 @@ const Registration = () => {
                     {showErrors('confirm')}
                   </Form.Group>
                   {signUpError
-                  && <Form.Text className="text-danger fs-5">{t(errorText)}</Form.Text>}
+                  && <Form.Text className="text-danger fs-6">{t(errorText)}</Form.Text>}
                   <Button variant="outline-primary" className="mt-4 w-100 rounded-1" type="submit">
                     {t('signup')}
                   </Button>

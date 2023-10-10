@@ -1,13 +1,10 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
-  Link,
   Navigate,
-  useLocation,
 } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
 
 import Layout from './Layout';
 import Chat from './Chat';
@@ -25,6 +22,7 @@ const AuthProvider = ({ children }) => {
   const logIn = () => setLoggedIn(true);
   const logOut = () => {
     localStorage.removeItem('userId');
+    localStorage.removeItem('username');
     setLoggedIn(false);
   };
 
@@ -37,37 +35,31 @@ const AuthProvider = ({ children }) => {
 
 const PrivateRoute = ({ children }) => {
   const auth = useAuth();
-
   return (
     auth.loggedIn ? children : <Navigate to="login" />
   );
 };
 
-const PrivateRoute2 = ({ children }) => {
+const RedirectToChat = ({ children }) => {
   const auth = useAuth();
-
   return (
     !auth.loggedIn ? children : <Navigate to="/" />
   );
 };
 
-// localStorage.removeItem('userId');
-const App = () => {
-  const { t } = useTranslation();
-  return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<PrivateRoute><Chat /></PrivateRoute>} />
-            <Route path="login" element={<PrivateRoute2><LoginPage /></PrivateRoute2>} />
-            <Route path="signup" element={<PrivateRoute2><Registration /></PrivateRoute2>} />
-            <Route path="*" element={<Error />} />
-          </Route>
-        </Routes>
-      </Router>
-    </AuthProvider>
-  );
-};
+const App = () => (
+  <AuthProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<PrivateRoute><Chat /></PrivateRoute>} />
+          <Route path="login" element={<RedirectToChat><LoginPage /></RedirectToChat>} />
+          <Route path="signup" element={<RedirectToChat><Registration /></RedirectToChat>} />
+          <Route path="*" element={<Error />} />
+        </Route>
+      </Routes>
+    </Router>
+  </AuthProvider>
+);
 
 export default App;
