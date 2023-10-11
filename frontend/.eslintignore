@@ -4,4 +4,5 @@ build
 src/init.js
 src/setLocale.js
 src/components/App.jsx
+src/components/Chat.jsx
 src/slices/channelsSlice.js
