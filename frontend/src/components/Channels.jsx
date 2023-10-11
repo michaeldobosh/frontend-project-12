@@ -52,7 +52,7 @@ const Channels = () => {
   });
   socket.on('renameChannel', (data) => {
     dispatch(renameChannel(data));
-    if (currentChannel?.id === data.id) {
+    if (currentChannel?.id === +data.id) {
       dispatch(setCurrentChannel({ id: data.id, name: data.name }));
     }
   });

@@ -9,8 +9,8 @@ const RemoveChannel = ({ api, handleClose, modalsInfo }) => {
   const onSubmit = async (evt) => {
     evt.preventDefault();
     api.removeChannel({ id: modalsInfo.selectedСhannelId });
-    handleClose();
     notify(t(modalsInfo.action));
+    handleClose();
   };
 
   return (
