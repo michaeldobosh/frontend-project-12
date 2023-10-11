@@ -14,11 +14,11 @@ const Version = () => {
     <Row className="px-2 w-25 d-flex justify-content-around">
       <Col md="7">{t('site_version')}</Col>
       <Col className="col-2">
-        <Link as={Button} data-lang="en" onClick={handleLangSwitch}>{t('english')}</Link>
+        <Link to="index" as={Button} data-lang="en" onClick={handleLangSwitch}>{t('english')}</Link>
       </Col>
       <Col md="1">|</Col>
       <Col className="col-1">
-        <Link as={Button} data-lang="ru" onClick={handleLangSwitch}>{t('russian')}</Link>
+        <Link to="index" as={Button} data-lang="ru" onClick={handleLangSwitch}>{t('russian')}</Link>
       </Col>
     </Row>
   );

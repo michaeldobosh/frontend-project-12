@@ -39,7 +39,7 @@ const Chat = () => {
       dispatch(addMessage(newMessage));
       setMessage('');
     });
-  }, []);
+  });
 
   const sendMessage = (message) => getResult('newMessage', message);
 
