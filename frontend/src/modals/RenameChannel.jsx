@@ -1,25 +1,24 @@
 import { useTranslation } from 'react-i18next';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import { Modal, Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import { Formik, Form as Forma, Field } from 'formik';
+import { useCurrentChannel } from '../hooks/index.jsx';
 import { selectors } from '../slices/channelsSlice';
 import setLocale from '../setLocale';
 
 setLocale();
 
-const RenameChannel = ({
-  api,
-  handleClose,
-  modalsInfo: { action, selectedChannelName, selectedСhannelId },
-}) => {
+const RenameChannel = ({ api, handleClose, modalsInfo }) => {
   const { t } = useTranslation();
+  const { currentChannel, setCurrentChannel } = useCurrentChannel();
   const notify = (message) => toast.success(message);
+  const dispatch = useDispatch();
 
   const channelsNames = useSelector(selectors.selectAll)
     .map((c) => c.name)
-    .filter((name) => name !== selectedChannelName);
+    .filter((name) => name !== modalsInfo.name);
 
   const validateSchema = yup.object({
     name: yup.string().min(3).max(20).required()
@@ -28,22 +27,25 @@ const RenameChannel = ({
 
   const onSubmit = async ({ name }, actions) => {
     try {
-      await api.renameChannel({ id: selectedСhannelId, name });
+      if (modalsInfo.name === currentChannel.name) {
+        dispatch(setCurrentChannel({ id: modalsInfo.id, name }));
+      }
+      await api.renameChannel({ id: modalsInfo.id, name });
       await handleClose();
-      notify(t(action));
+      notify(t(modalsInfo.action));
     } catch (e) {
-      await actions.setSubmitting(false);
+      actions.setSubmitting(false);
     }
   };
 
   return (
-    <Modal show={action} onHide={handleClose}>
+    <Modal show={modalsInfo.action} onHide={handleClose}>
       <Modal.Header closeButton>
         <Modal.Title>{t('rename_channel')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Formik
-          initialValues={{ name: selectedChannelName }}
+          initialValues={{ name: modalsInfo.name }}
           validationSchema={validateSchema}
           onSubmit={onSubmit}
         >

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import {
   BrowserRouter as Router,
   Routes,
@@ -11,9 +12,11 @@ import Chat from './Chat';
 import LoginPage from './Login';
 import Error from './Error404';
 import Registration from './Signup';
-import { UserContext } from '../contexts/index.jsx';
+import { UserContext, CurrentChannel } from '../contexts/index.jsx';
 import { useAuth } from '../hooks/index.jsx';
 import getAuthHeader from '../getAuthHeader.js';
+import { fetchChannels, setCurrentChannel } from '../slices/channelsSlice';
+import { fetchMessages } from '../slices/messagesSlice';
 
 const AuthProvider = ({ children }) => {
   const { Authorization } = getAuthHeader();
@@ -30,6 +33,23 @@ const AuthProvider = ({ children }) => {
     <UserContext.Provider value={{ loggedIn, logIn, logOut }}>
       {children}
     </UserContext.Provider>
+  );
+};
+
+const CurrentChannelProvider = ({ children }) => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(fetchMessages());
+    dispatch(fetchChannels());
+  }, []);
+
+  const defaultChannel = useSelector((state) => state.channels.defaultChannel);
+  const currentChannel = useSelector((state) => state.channels.currentChannel);
+
+  return (
+    <CurrentChannel.Provider value={{ currentChannel, setCurrentChannel, defaultChannel }}>
+      {children}
+    </CurrentChannel.Provider>
   );
 };
 
@@ -52,7 +72,12 @@ const App = () => (
     <Router>
       <Routes>
         <Route path="/" element={<Layout />}>
-          <Route index element={<PrivateRoute><Chat /></PrivateRoute>} />
+          <Route
+            index
+            element={
+              <PrivateRoute><CurrentChannelProvider><Chat /></CurrentChannelProvider></PrivateRoute>
+            }
+          />
           <Route path="login" element={<RedirectToChat><LoginPage /></RedirectToChat>} />
           <Route path="signup" element={<RedirectToChat><Registration /></RedirectToChat>} />
           <Route path="*" element={<Error />} />

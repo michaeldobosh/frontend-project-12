@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import cn from 'classnames';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -15,7 +15,6 @@ import {
   addChannel,
   removeChannel,
   renameChannel,
-  setCurrentChannel,
   selectors as extractChannels,
 } from '../slices/channelsSlice';
 import getModal from '../modals/index.js';
@@ -33,11 +32,15 @@ const Channels = () => {
   const { t } = useTranslation();
 
   const [modalsInfo, setModalsInfo] = useState({});
+  const [currentChannel, setCurrentChannel] = useState({});
+  const defaultChannel = useSelector((state) => state.channels.currentChannel);
 
-  const defaultChannel = { id: 1, name: 'general' };
+  useEffect(() => {
+    setCurrentChannel(defaultChannel);
+  }, []);
+
   const messages = useSelector(extractMessages.selectAll);
   const channels = useSelector(extractChannels.selectAll);
-  const currentChannel = useSelector((state) => state.channels.currentChannel);
   const currentChannelMessages = messages
     .filter(({ messageChannel }) => currentChannel.name === messageChannel);
 
@@ -49,11 +52,12 @@ const Channels = () => {
 
   socket.on('newChannel', (data) => {
     dispatch(addChannel(data));
+    setCurrentChannel(data);
   });
   socket.on('renameChannel', (data) => {
     dispatch(renameChannel(data));
-    if (currentChannel?.id === +data.id) {
-      dispatch(setCurrentChannel({ id: data.id, name: data.name }));
+    if (currentChannel.id === +data.id) {
+      setCurrentChannel({ id: data.id, name: data.name });
     }
   });
   socket.on('removeChannel', (data) => {
@@ -76,13 +80,13 @@ const Channels = () => {
 
   const classNames = (messageChannel) => cn(
     'w-100 rounded-0 text-start text-truncate',
-    { 'btn-secondary': messageChannel === currentChannel.name },
+    { 'btn-secondary': messageChannel === currentChannel?.name },
   );
 
   const renderButtonGroup = (name, id) => (
     <li key={id}>
       <Dropdown as={ButtonGroup} className="w-100">
-        <Button variant="outline" className={classNames(name)} onClick={() => dispatch(setCurrentChannel({ name, id }))}>
+        <Button variant="outline" className={classNames(name)} onClick={() => setCurrentChannel({ name, id })}>
           {`# ${name}`}
         </Button>
 
@@ -122,7 +126,7 @@ const Channels = () => {
         }
         return (
           <li key={id}>
-            <Button variant="outline" className={classNames(name)} onClick={() => dispatch(setCurrentChannel({ name, id }))}>
+            <Button variant="outline" className={classNames(name)} onClick={() => setCurrentChannel({ name, id })}>
               {`# ${name}`}
             </Button>
           </li>

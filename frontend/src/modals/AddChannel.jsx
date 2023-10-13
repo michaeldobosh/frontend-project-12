@@ -4,13 +4,15 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import { Formik, Form as Forma, Field } from 'formik';
-import { selectors, setCurrentChannel } from '../slices/channelsSlice';
+import { useCurrentChannel } from '../hooks/index.jsx';
+import { selectors } from '../slices/channelsSlice';
 import setLocale from '../setLocale';
 
 setLocale();
 
 const AddChannel = ({ api, handleClose, modalsInfo }) => {
   const { t } = useTranslation();
+  const { setCurrentChannel } = useCurrentChannel();
   const notify = (message) => toast.success(message);
   const dispatch = useDispatch();
 

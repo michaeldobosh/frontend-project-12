@@ -1,5 +1,4 @@
 import { Row, Col, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const Version = () => {
@@ -11,14 +10,14 @@ const Version = () => {
   };
 
   return (
-    <Row className="px-2 w-25 d-flex justify-content-around">
-      <Col md="7">{t('site_version')}</Col>
-      <Col className="col-2">
-        <Link to="index" as={Button} data-lang="en" onClick={handleLangSwitch}>{t('english')}</Link>
+    <Row className="px-2 w-50 d-flex justify-content-start">
+      <Col md="3 px-1">{t('site_version')}</Col>
+      <Col className="col-2 px-0">
+        <Button variant="outline-secondary py-0 " data-lang="en" onClick={handleLangSwitch}>{t('english')}</Button>
       </Col>
-      <Col md="1">|</Col>
-      <Col className="col-1">
-        <Link to="index" as={Button} data-lang="ru" onClick={handleLangSwitch}>{t('russian')}</Link>
+      <Col md="1 px-0">|</Col>
+      <Col className="col-1 px-0">
+        <Button variant="outline-secondary py-0" data-lang="ru" onClick={handleLangSwitch}>{t('russian')}</Button>
       </Col>
     </Row>
   );

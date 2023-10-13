@@ -1,14 +1,19 @@
 import { useTranslation } from 'react-i18next';
+import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import { Modal, Button, Form } from 'react-bootstrap';
+import { useCurrentChannel } from '../hooks/index.jsx';
 
 const RemoveChannel = ({ api, handleClose, modalsInfo }) => {
   const { t } = useTranslation();
+  const { defaultChannel, setCurrentChannel } = useCurrentChannel();
+  const dispatch = useDispatch();
   const notify = (message) => toast.success(message);
 
   const onSubmit = async (evt) => {
     evt.preventDefault();
-    api.removeChannel({ id: modalsInfo.selectedСhannelId });
+    await api.removeChannel({ id: modalsInfo.id });
+    await dispatch(setCurrentChannel(defaultChannel));
     notify(t(modalsInfo.action));
     handleClose();
   };
