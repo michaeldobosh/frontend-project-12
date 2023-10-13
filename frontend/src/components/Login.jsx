@@ -31,10 +31,13 @@ const LoginPage = () => {
   const [{ isAuthError, errorText }, setAuthError] = useState({ isAuthError: false, errorText: '' });
   const { t } = useTranslation();
 
+  const base = routes.baseUrl();
+  const path = routes.loginPath();
+  const url = new URL(path, base);
+
   const onSubmit = async (values, actions) => {
     try {
-      const path = await routes.loginPath();
-      const { data: { token } } = await axios.post(path, values);
+      const { data: { token } } = await axios.post(url.toString(), values);
       localStorage.setItem('userId', JSON.stringify({ token }));
       localStorage.setItem('username', values.username);
       auth.logIn(values.username);
