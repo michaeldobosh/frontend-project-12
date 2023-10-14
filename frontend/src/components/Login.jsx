@@ -31,17 +31,10 @@ const LoginPage = () => {
   const [{ isAuthError, errorText }, setAuthError] = useState({ isAuthError: false, errorText: '' });
   const { t } = useTranslation();
 
-  console.log(process.env);
-
-  const base = routes.baseUrl();
-  const path = routes.loginPath();
-  const url = new URL(path, base);
-
-  console.log(process.env);
-
   const onSubmit = async (values, actions) => {
     try {
-      const { data: { token } } = await axios.post(url.toString(), values);
+      const path = routes.loginPath();
+      const { data: { token } } = await axios.post(path, values);
       localStorage.setItem('userId', JSON.stringify({ token }));
       localStorage.setItem('username', values.username);
       auth.logIn(values.username);
