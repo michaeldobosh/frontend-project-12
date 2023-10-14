@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { createSlice, createEntityAdapter, createAsyncThunk, current } from '@reduxjs/toolkit';
+import { createSlice, createEntityAdapter, createAsyncThunk } from '@reduxjs/toolkit';
 import getAuthHeader from '../getAuthHeader.js';
 import routes from '../routes.js';
 
@@ -25,8 +25,6 @@ const channelsSlice = createSlice({
       state.entities[payload.id].name = payload.name;
     },
     setCurrentChannel: (state, { payload }) => {
-      // console.log(current(state));
-      // console.log(payload);
       state.currentChannel = payload;
     },
   },
@@ -36,7 +34,7 @@ const channelsSlice = createSlice({
         channelsAdapter.addMany(state, payload.channels);
         state.defaultChannel = payload.channels.find(({ id }) => id === payload.currentChannelId);
 
-        if (!state.currentChannel) {
+        if (!state.currentChannel?.id) {
           state.currentChannel = { id: state.defaultChannel.id, name: state.defaultChannel.name };
         }
       });

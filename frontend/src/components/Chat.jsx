@@ -32,6 +32,9 @@ const renderModal = (api, handleClose, modals) => {
 };
 
 const Chat = () => {
+  const { t } = useTranslation();
+  const dispatch = useDispatch();
+  filter.loadDictionary('ru');
   const { socket, getResult } = useSocket();
   const api = {
     sendMessage: (message) => getResult('newMessage', message),
@@ -42,12 +45,6 @@ const Chat = () => {
 
   const { currentChannel, setCurrentChannel } = useCurrentChannel();
 
-  console.log(currentChannel);
-
-  const { t } = useTranslation();
-  const dispatch = useDispatch();
-  filter.loadDictionary('ru');
-
   const [chatMessage, setMessage] = useState('');
   const [modalsInfo, setModalsInfo] = useState({});
 
@@ -56,7 +53,7 @@ const Chat = () => {
   const channels = useSelector(extractChannels.selectAll);
 
   const currentChannelMessages = messages
-    .filter(({ messageChannel }) => messageChannel.name === currentChannel?.name);
+    .filter(({ messageChannel }) => messageChannel === currentChannel?.name);
 
   useEffect(() => {
     socket.on('newMessage', (newMessage) => {
@@ -74,8 +71,6 @@ const Chat = () => {
     });
   }, []);
 
-  const sendMessage = (message) => getResult('newMessage', message);
-
   const onSubmit = async (evt) => {
     evt.preventDefault();
     const newMessage = {
@@ -86,7 +81,7 @@ const Chat = () => {
     };
 
     try {
-      await sendMessage(newMessage);
+      await api.sendMessage(newMessage);
     } catch (e) {
       console.log(e);
     }
@@ -170,7 +165,7 @@ const Chat = () => {
     </ul>
   );
 
-  return (
+  return currentChannel && (
     <Container className="w-75 d-md-block shadow" style={{ height: 800 }}>
       <Row className="row-cols-3">
         <Col
@@ -205,7 +200,7 @@ const Chat = () => {
         </Col>
         <Col className="p-3 col-10 text-start overflow-y-auto" style={{ height: 650, backgroundColor: '#FAFAFA' }}>
           <ListGroup className="d-flex flex-column px-2 mb-3">
-            {messages
+            {currentChannelMessages
             && currentChannelMessages.map(({ id, message, username }) => (
               <ListGroup.Item key={id} variant={variantMessage(username)} className={messagesClassNames(username)} style={{ minHeight: `${40}px`, width: `${30}rem` }}>
                 <span className="fw-bold">

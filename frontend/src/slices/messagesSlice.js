@@ -9,7 +9,7 @@ export const fetchMessages = createAsyncThunk(
   async () => {
     const dataId = await getAuthHeader();
     const response = await axios.get(routes.dataPath(), { headers: dataId });
-    return response.data.messages;
+    return response.data;
   },
 );
 
@@ -29,8 +29,8 @@ const messagesSlice = createSlice({
         const resMessages = Object.values(state.entities).filter(({ id }) => id !== channelId);
         messagesAdapter.setAll(state, resMessages);
       })
-      .addCase(fetchMessages.fulfilled, (state, action) => {
-        messagesAdapter.addMany(state, action);
+      .addCase(fetchMessages.fulfilled, (state, { payload }) => {
+        messagesAdapter.addMany(state, payload.messages);
       });
   },
 });
