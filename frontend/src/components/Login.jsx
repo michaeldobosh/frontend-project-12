@@ -35,6 +35,8 @@ const LoginPage = () => {
   const path = routes.loginPath();
   const url = new URL(path, base);
 
+  console.log(process.env);
+
   const onSubmit = async (values, actions) => {
     try {
       const { data: { token } } = await axios.post(url.toString(), values);
