@@ -31,6 +31,8 @@ const LoginPage = () => {
   const [{ isAuthError, errorText }, setAuthError] = useState({ isAuthError: false, errorText: '' });
   const { t } = useTranslation();
 
+  console.log(process.env);
+
   const base = routes.baseUrl();
   const path = routes.loginPath();
   const url = new URL(path, base);
