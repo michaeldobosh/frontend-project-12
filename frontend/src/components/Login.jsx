@@ -32,13 +32,13 @@ const LoginPage = () => {
   const { t } = useTranslation();
 
   const onSubmit = async (values, actions) => {
+    setAuthError(false);
     try {
       const path = routes.loginPath();
       const { data: { token } } = await axios.post(path, values);
       localStorage.setItem('userId', JSON.stringify({ token }));
       localStorage.setItem('username', values.username);
-      auth.logIn(values.username);
-      setAuthError(false);
+      auth.logIn(token);
     } catch (error) {
       actions.setSubmitting(false);
       if (error.isAxiosError && error.response.status === 401) {
