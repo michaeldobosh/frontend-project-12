@@ -7,7 +7,6 @@ import {
   Navigate,
 } from 'react-router-dom';
 
-import { Provider, ErrorBoundary } from '@rollbar/react';
 import Layout from './Layout';
 import Chat from './Chat';
 import LoginPage from './Login';
@@ -55,26 +54,6 @@ const CurrentChannelProvider = ({ children }) => {
   );
 };
 
-const RollbarProvider = () => {
-  const rollbarConfig = {
-    accessToken: 'eebf4ec2a6b645dfa7756a80f675a318',
-    environment: 'testenv',
-  };
-
-  function TestError() {
-    const a = null;
-    return a.hello();
-  }
-
-  return (
-    <Provider config={rollbarConfig}>
-      <ErrorBoundary>
-        <TestError />
-      </ErrorBoundary>
-    </Provider>
-  );
-};
-
 const PrivateRoute = ({ children }) => {
   const auth = useAuth();
   return (
@@ -91,29 +70,27 @@ const RedirectToChat = ({ children }) => {
 
 const App = () => (
   <AuthProvider>
-    <RollbarProvider>
-      <Router>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route
-              index
-              element={(
-                <PrivateRoute>
-                  <CurrentChannelProvider>
-                    <Chat />
-                  </CurrentChannelProvider>
-                </PrivateRoute>
-              )}
-            />
-            <Route element={<FormContainer />}>
-              <Route path="login" element={<RedirectToChat><LoginPage /></RedirectToChat>} />
-              <Route path="signup" element={<RedirectToChat><Registration /></RedirectToChat>} />
-            </Route>
-            <Route path="*" element={<Error />} />
+    <Router>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route
+            index
+            element={(
+              <PrivateRoute>
+                <CurrentChannelProvider>
+                  <Chat />
+                </CurrentChannelProvider>
+              </PrivateRoute>
+            )}
+          />
+          <Route element={<FormContainer />}>
+            <Route path="login" element={<RedirectToChat><LoginPage /></RedirectToChat>} />
+            <Route path="signup" element={<RedirectToChat><Registration /></RedirectToChat>} />
           </Route>
-        </Routes>
-      </Router>
-    </RollbarProvider>
+          <Route path="*" element={<Error />} />
+        </Route>
+      </Routes>
+    </Router>
   </AuthProvider>
 );
 

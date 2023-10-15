@@ -4,10 +4,13 @@ import { initReactI18next } from 'react-i18next';
 import { createRoot } from 'react-dom/client';
 import i18next from 'i18next';
 import { io } from 'socket.io-client';
+import { Provider as RollbarProvider, ErrorBoundary } from '@rollbar/react';
+
 import { SocketContext } from './contexts/index.jsx';
 import resources from './locales/index.js';
 import App from './components/App';
 import store from './slices/index.js';
+import rollbarConfig from './rollbar/rollbarConfig.js';
 
 const init = async (socket) => {
   const defaultLang = 'ru';
@@ -41,11 +44,15 @@ const init = async (socket) => {
   };
 
   return (
-    <Provider store={store}>
-      <SocketProvider>
-        <App />
-      </SocketProvider>
-    </Provider>
+    <RollbarProvider config={rollbarConfig}>
+      <ErrorBoundary>
+        <Provider store={store}>
+          <SocketProvider>
+            <App />
+          </SocketProvider>
+        </Provider>
+      </ErrorBoundary>
+    </RollbarProvider>
   );
 };
 
