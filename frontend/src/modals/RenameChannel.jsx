@@ -1,6 +1,12 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
-import { Modal, Button, Form } from 'react-bootstrap';
+import {
+  Modal,
+  Button,
+  Form,
+  Alert,
+} from 'react-bootstrap';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import { Formik, Form as Forma, Field } from 'formik';
@@ -16,6 +22,7 @@ const RenameChannel = ({ api, handleClose, modalsInfo }) => {
   const notify = (message) => toast.success(message);
   const dispatch = useDispatch();
 
+  const [error, setError] = useState('');
   const channelsNames = useSelector(selectors.selectAll)
     .map((c) => c.name)
     .filter((name) => name !== modalsInfo.name);
@@ -26,6 +33,7 @@ const RenameChannel = ({ api, handleClose, modalsInfo }) => {
   });
 
   const onSubmit = async ({ name }, actions) => {
+    setError('');
     try {
       if (modalsInfo.name === currentChannel.name) {
         dispatch(setCurrentChannel({ id: modalsInfo.id, name }));
@@ -33,7 +41,8 @@ const RenameChannel = ({ api, handleClose, modalsInfo }) => {
       await api.renameChannel({ id: modalsInfo.id, name });
       await handleClose();
       notify(t(modalsInfo.action));
-    } catch (e) {
+    } catch (err) {
+      setError(err.message.replaceAll(' ', '_'));
       actions.setSubmitting(false);
     }
   };
@@ -63,6 +72,9 @@ const RenameChannel = ({ api, handleClose, modalsInfo }) => {
                 <Form.Control.Feedback type="invalid">
                   {errors.name && submitCount ? t(errors.name) : null}
                 </Form.Control.Feedback>
+                {error && (
+                  <Alert variant="danger mt-2">{t(error)}</Alert>
+                )}
               </Form.Group>
               <Modal.Footer>
                 <Button variant="secondary" onClick={handleClose}>{t('cancel')}</Button>

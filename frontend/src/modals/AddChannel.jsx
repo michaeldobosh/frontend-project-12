@@ -1,6 +1,12 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
-import { Modal, Button, Form } from 'react-bootstrap';
+import {
+  Modal,
+  Button,
+  Form,
+  Alert,
+} from 'react-bootstrap';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import { Formik, Form as Forma, Field } from 'formik';
@@ -17,20 +23,23 @@ const AddChannel = ({ api, handleClose, modalsInfo }) => {
   const dispatch = useDispatch();
 
   const channelsNames = useSelector(selectors.selectAll).map((c) => c.name);
+  const [error, setError] = useState('');
 
   const validateSchema = yup.object({
-    channelName: yup.string().min(3).max(20).required()
+    name: yup.string().min(3).max(20).required()
       .notOneOf(channelsNames),
   });
 
-  const onSubmit = async ({ channelName }, actions) => {
+  const onSubmit = async (values, actions) => {
+    setError('');
     try {
-      const response = await api.addChannel({ name: channelName });
+      const response = await api.addChannel({ name: values.name });
       await dispatch(setCurrentChannel(response.data));
       await handleClose();
       notify(t(modalsInfo.action));
-    } catch (e) {
-      await actions.setSubmitting(false);
+    } catch (err) {
+      setError(err.message.replaceAll(' ', '_'));
+      actions.setSubmitting(false);
     }
   };
 
@@ -41,7 +50,7 @@ const AddChannel = ({ api, handleClose, modalsInfo }) => {
       </Modal.Header>
       <Modal.Body>
         <Formik
-          initialValues={{ channelName: '' }}
+          initialValues={{ name: '' }}
           validationSchema={validateSchema}
           onSubmit={onSubmit}
         >
@@ -52,13 +61,16 @@ const AddChannel = ({ api, handleClose, modalsInfo }) => {
                   as={Field}
                   autoFocus
                   type="text"
-                  name="channelName"
-                  className={errors.channelName
+                  name="name"
+                  className={errors.name
                     && submitCount ? 'is-invalid' : null}
                 />
                 <Form.Control.Feedback type="invalid">
-                  {errors.channelName && submitCount ? t(errors.channelName) : null}
+                  {errors.name && submitCount ? t(errors.name) : null}
                 </Form.Control.Feedback>
+                {error && (
+                <Alert variant="danger mt-2">{t(error)}</Alert>
+                )}
               </Form.Group>
               <Modal.Footer>
                 <Button variant="secondary" onClick={handleClose}>{t('cancel')}</Button>

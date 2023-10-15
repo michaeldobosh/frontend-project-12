@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import cn from 'classnames';
 import { useSelector, useDispatch } from 'react-redux';
 import {
@@ -11,6 +11,7 @@ import {
   ListGroup,
   ButtonGroup,
   Dropdown,
+  Alert,
 } from 'react-bootstrap';
 import filter from 'leo-profanity';
 import { ToastContainer } from 'react-toastify';
@@ -44,9 +45,11 @@ const Chat = () => {
   };
 
   const { currentChannel, setCurrentChannel } = useCurrentChannel();
+  const button = useRef();
 
   const [chatMessage, setMessage] = useState('');
   const [modalsInfo, setModalsInfo] = useState({});
+  const [error, setError] = useState('');
 
   const currentUser = localStorage.getItem('username');
   const messages = useSelector(extractMessages.selectAll);
@@ -73,6 +76,8 @@ const Chat = () => {
 
   const onSubmit = async (evt) => {
     evt.preventDefault();
+    setError('');
+    button.current.disabled = true;
     const newMessage = {
       message: filter.clean(chatMessage),
       messageChannel: currentChannel.name,
@@ -82,8 +87,9 @@ const Chat = () => {
 
     try {
       await api.sendMessage(newMessage);
-    } catch (e) {
-      console.log(e);
+    } catch (err) {
+      setError(err.message.replaceAll(' ', '_'));
+      button.current.disabled = false;
     }
   };
 
@@ -104,7 +110,7 @@ const Chat = () => {
   const handleClose = () => setModalsInfo({});
 
   const messagesClassNames = (user) => cn(
-    'm-2 p-2 rounded-top-4 rounded-end-4 text-start d-block',
+    'w-50 m-1 p-2 rounded-top-4 rounded-end-4 text-start d-block',
     { 'align-self-end': user === currentUser },
   );
 
@@ -166,40 +172,32 @@ const Chat = () => {
   );
 
   return currentChannel && (
-    <Container className="w-75 d-md-block shadow" style={{ height: 800 }}>
-      <Row className="row-cols-3">
-        <Col
-          className="p-4 col-1 fw-bold d-md-block border-bottom border-3 border-light bg-secondary bg-opacity-50"
-        >
+    <Container className="d-md-block shadow">
+      <Row className="row-cols-2">
+        <Col className="p-4 col-4 col-md-3 col-lg-2 fw-bold border-bottom border-end border-3 border-light bg-secondary bg-opacity-50">
           <ToastContainer />
           {t('channels')}
-        </Col>
-        <Col
-          className="p-3 col-1 border-end border-bottom border-3 border-light bg-secondary bg-opacity-50"
-        >
           <Button
             variant="outside"
-            className="mx-3 p-0 bi-plus-square text-primary fs-4"
+            className="p-0 ps-3 bi-plus-square text-primary fs-4"
             data-action="newChannel"
             onClick={handleShow}
           />
         </Col>
         {renderModal(api, handleClose, modalsInfo)}
-        <Col
-          className="p-3 col-10 border-bottom border-3 border-light bg-secondary bg-opacity-50"
-        >
+        <Col className="p-3 col-8 col-md-9 col-lg-10 border-bottom border-3 border-light bg-secondary bg-opacity-50">
           <span className="fw-bold">{`# ${currentChannel?.name}`}</span>
           <br />
           <span>{`${currentChannelMessages.length} ${t('messages', { count: currentChannelMessages.length })}`}</span>
         </Col>
         <Col
-          className="py-4 px-0 col-2 border-end border-3 border-light bg-secondary bg-opacity-50"
-          style={{ height: 650 }}
+          className="py-4 px-0 col-4 col-md-3 col-lg-2 border-end border-3 border-light bg-secondary bg-opacity-50"
+          style={{ height: 700 }}
         >
           {renderChannels()}
         </Col>
-        <Col className="p-3 col-10 text-start overflow-y-auto" style={{ height: 650, backgroundColor: '#FAFAFA' }}>
-          <ListGroup className="d-flex flex-column px-2 mb-3">
+        <Col className="p-3 col-8 col-md-9 col-lg-10 text-start position-relative">
+          <ListGroup className="d-flex flex-column px-2 mb-3 overflow-y-auto" style={{ height: 600 }}>
             {currentChannelMessages
             && currentChannelMessages.map(({ id, message, username }) => (
               <ListGroup.Item key={id} variant={variantMessage(username)} className={messagesClassNames(username)} style={{ minHeight: `${40}px`, width: `${30}rem` }}>
@@ -209,11 +207,14 @@ const Chat = () => {
                 {message}
               </ListGroup.Item>
             ))}
+            {error
+                && (
+                <Alert variant="danger">
+                  {t(error)}
+                </Alert>
+                )}
           </ListGroup>
-        </Col>
-        <Col className="py-4 px-5 col-2 border-end border-3 border-light bg-secondary bg-opacity-50" />
-        <Col className="col-10 bg-secondary bg-opacity-50" style={{ height: 70, backgroundColor: '#FAFAFA' }}>
-          <Form className="px-1 py-3" onSubmit={onSubmit}>
+          <Form onSubmit={onSubmit} style={{ position: 'relative', bottom: 0 }}>
             <Form.Group controlId="exampleInputMessage" className="input-group-text p-0 bg-white">
               <Form.Control
                 autoFocus
@@ -224,7 +225,13 @@ const Chat = () => {
                 placeholder={t('enter_your_message')}
                 className="border-0"
               />
-              <Button type="submit" variant="outline" className="input-group-text border-0" disabled={!chatMessage}>
+              <Button
+                ref={button}
+                type="submit"
+                variant="outline"
+                className="input-group-text border-0"
+                disabled={!chatMessage}
+              >
                 <i className="bi bi-chat-text" />
               </Button>
             </Form.Group>

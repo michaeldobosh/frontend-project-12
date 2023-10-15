@@ -5,4 +5,5 @@ src/init.js
 src/setLocale.js
 src/components/App.jsx
 src/components/Chat.jsx
+src/components/Login.jsx
 src/slices/channelsSlice.js

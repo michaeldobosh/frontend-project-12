@@ -1,7 +1,13 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
-import { Modal, Button, Form } from 'react-bootstrap';
+import {
+  Modal,
+  Button,
+  Form,
+  Alert,
+} from 'react-bootstrap';
 import { useCurrentChannel } from '../hooks/index.jsx';
 
 const RemoveChannel = ({ api, handleClose, modalsInfo }) => {
@@ -9,13 +15,19 @@ const RemoveChannel = ({ api, handleClose, modalsInfo }) => {
   const { defaultChannel, setCurrentChannel } = useCurrentChannel();
   const dispatch = useDispatch();
   const notify = (message) => toast.success(message);
+  const [error, setError] = useState('');
 
   const onSubmit = async (evt) => {
     evt.preventDefault();
-    await api.removeChannel({ id: modalsInfo.id });
-    await dispatch(setCurrentChannel(defaultChannel));
-    notify(t(modalsInfo.action));
-    handleClose();
+    setError('');
+    try {
+      await api.removeChannel({ id: modalsInfo.id });
+      await dispatch(setCurrentChannel(defaultChannel));
+      notify(t(modalsInfo.action));
+      handleClose();
+    } catch (err) {
+      setError(err.message.replaceAll(' ', '_'));
+    }
   };
 
   return (
@@ -26,6 +38,10 @@ const RemoveChannel = ({ api, handleClose, modalsInfo }) => {
       <Modal.Body>
         <Form onSubmit={onSubmit}>
           <Form.Text className="fs-5">{t('convinced')}</Form.Text>
+          <br />
+          {error && (
+            <Alert variant="danger" className="mt-2">{t(error)}</Alert>
+          )}
           <div className="modal-footer">
             <Button variant="secondary" onClick={handleClose}>{t('cancel')}</Button>
             <Button type="submit" variant="danger">{t('remove')}</Button>

@@ -17,6 +17,7 @@ import { useAuth } from '../hooks/index.jsx';
 import getAuthHeader from '../getAuthHeader.js';
 import { fetchChannels, setCurrentChannel } from '../slices/channelsSlice';
 import { fetchMessages } from '../slices/messagesSlice';
+import FormContainer from './FormContainer';
 
 const AuthProvider = ({ children }) => {
   const { Authorization } = getAuthHeader();
@@ -78,8 +79,10 @@ const App = () => (
               <PrivateRoute><CurrentChannelProvider><Chat /></CurrentChannelProvider></PrivateRoute>
             }
           />
-          <Route path="login" element={<RedirectToChat><LoginPage /></RedirectToChat>} />
-          <Route path="signup" element={<RedirectToChat><Registration /></RedirectToChat>} />
+          <Route element={<FormContainer />}>
+            <Route path="login" element={<RedirectToChat><LoginPage /></RedirectToChat>} />
+            <Route path="signup" element={<RedirectToChat><Registration /></RedirectToChat>} />
+          </Route>
           <Route path="*" element={<Error />} />
         </Route>
       </Routes>

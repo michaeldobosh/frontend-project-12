@@ -3,8 +3,6 @@ import { Formik, Form as Forma, Field } from 'formik';
 import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import {
-  Container,
-  Row,
   Col,
   Image,
   Button,
@@ -14,7 +12,6 @@ import * as yup from 'yup';
 import routes from '../routes';
 import { useAuth } from '../hooks/index.jsx';
 import setLocale from '../setLocale';
-import Version from './Version';
 import join from '../img/join.png';
 
 setLocale();
@@ -53,88 +50,83 @@ const Registration = () => {
   };
 
   return (
-    <Container className="p-1 pb-5 bg-light border border-2 w-50">
-      <Version />
-      <Row>
-        <Col md="6">
-          <Image src={join} alt="chat" className="w-100" />
-        </Col>
-        <Col md="5" className="position-relative">
-          <Formik
-            initialValues={{
-              username: '',
-              password: '',
-              confirm: '',
-            }}
-            validationSchema={validateForm}
-            onSubmit={onSubmit}
-          >
-            {({ errors, touched }) => {
-              const showErrors = (fieldName) => {
-                if (errors[fieldName] && touched[fieldName]) {
-                  return (
-                    <Form.Text className="position-absolute top-25 start-25 px-3 py-1 bg-danger rounded-1 text-white opacity-75">
-                      {t(errors[fieldName])}
-                    </Form.Text>
-                  );
-                }
-                return null;
-              };
+    <>
+      <Col><Image src={join} alt="chat" className="w-100" /></Col>
+      <Col>
+        <Formik
+          initialValues={{
+            username: '',
+            password: '',
+            confirm: '',
+          }}
+          validationSchema={validateForm}
+          onSubmit={onSubmit}
+        >
+          {({ errors, touched }) => {
+            const showErrors = (fieldName) => {
+              if (errors[fieldName] && touched[fieldName]) {
+                return (
+                  <Form.Text className="position-absolute top-25 start-25 px-3 py-1 bg-danger rounded-1 text-white opacity-75">
+                    {t(errors[fieldName])}
+                  </Form.Text>
+                );
+              }
+              return null;
+            };
 
-              return (
-                <Form as={Forma}>
-                  <Form.Text className="fs-1 text-center">{t('reg')}</Form.Text>
-                  <Form.Group controlId="formBasicName" className="pb-2">
-                    <Form.Label />
-                    <Form.Control
-                      as={Field}
-                      type="text"
-                      placeholder={t('your_nickname')}
-                      name="username"
-                      className={errors.username
-                        && touched.username ? 'is-invalid' : null}
-                    />
-                    {showErrors('username')}
-                  </Form.Group>
+            return (
+              <Form as={Forma}>
+                <Form.Text className="fs-1 text-center">{t('reg')}</Form.Text>
+                <Form.Group controlId="formBasicName" className="pb-2">
+                  <Form.Label />
+                  <Form.Control
+                    as={Field}
+                    type="text"
+                    placeholder={t('your_nickname')}
+                    name="username"
+                    className={errors.username
+                      && touched.username ? 'is-invalid' : null}
+                  />
+                  {showErrors('username')}
+                </Form.Group>
 
-                  <Form.Group controlId="formBasicPassword" className="pb-2">
-                    <Form.Label />
-                    <Form.Control
-                      as={Field}
-                      name="password"
-                      type="password"
-                      autoComplete="password"
-                      placeholder={t('password')}
-                      className={errors.password
-                        && touched.password ? 'is-invalid' : null}
-                    />
-                    {showErrors('password')}
-                  </Form.Group>
+                <Form.Group controlId="formBasicPassword" className="pb-2">
+                  <Form.Label />
+                  <Form.Control
+                    as={Field}
+                    name="password"
+                    type="password"
+                    autoComplete="password"
+                    placeholder={t('password')}
+                    className={errors.password
+                      && touched.password ? 'is-invalid' : null}
+                  />
+                  {showErrors('password')}
+                </Form.Group>
 
-                  <Form.Group controlId="formBasicconfirm" className="pb-2">
-                    <Form.Label />
-                    <Form.Control
-                      as={Field}
-                      name="confirm"
-                      type="password"
-                      placeholder={t('password_conf')}
-                      className={errors.confirm
-                        && touched.confirm ? 'is-invalid' : null}
-                    />
-                    {showErrors('confirm')}
-                  </Form.Group>
-                  {signUpError
-                  && <Form.Text className="text-danger fs-6">{t(errorText)}</Form.Text>}
-                  <Button variant="outline-primary" className="mt-4 w-100 rounded-1" type="submit">
-                    {t('signup')}
-                  </Button>
-                </Form>
-              );
-            }}
-          </Formik>
-        </Col>
-      </Row>
-    </Container>
+                <Form.Group controlId="formBasicconfirm" className="pb-2">
+                  <Form.Label />
+                  <Form.Control
+                    as={Field}
+                    name="confirm"
+                    type="password"
+                    placeholder={t('password_conf')}
+                    className={errors.confirm
+                      && touched.confirm ? 'is-invalid' : null}
+                  />
+                  {showErrors('confirm')}
+                </Form.Group>
+                {signUpError
+                && <Form.Text className="text-danger fs-6">{t(errorText)}</Form.Text>}
+                <Button variant="outline-primary" className="mt-4 w-100 rounded-1" type="submit">
+                  {t('signup')}
+                </Button>
+              </Form>
+            );
+          }}
+        </Formik>
+      </Col>
+    </>
   );
 };
 
