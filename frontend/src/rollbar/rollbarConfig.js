@@ -1,6 +1,8 @@
 const rollbarConfig = {
-  accessToken: 'eebf4ec2a6b645dfa7756a80f675a318',
-  environment: 'production',
+  accessToken: process.env.REACT_APP_ROLLBAR_TOKEN,
+  payload: {
+    environment: 'production',
+  },
   captureUncaught: true,
   captureUnhandledRejections: true,
 };
