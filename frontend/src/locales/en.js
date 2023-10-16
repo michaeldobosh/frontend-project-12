@@ -13,6 +13,7 @@ export default {
     min_3: 'At least 3 characters',
     min_6: 'At least 6 characters',
     max_20: 'No more than 20 characters',
+    from_3_to_20_characters: 'From 3 to 20 characters',
     request_failed_with_status_code_401: 'Invalid username or password',
     request_failed_with_status_code_409: 'This user already exists',
     log_out: 'Log out',

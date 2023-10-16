@@ -18,8 +18,8 @@ setLocale();
 const timeout = 10000;
 
 const validateForm = yup.object().shape({
-  username: yup.string().min(3).max(20).required()
-    .trim(),
+  username: yup.string().required().trim()
+    .test('username', 'from_3_to_20_characters', (value) => value?.length >= 3 && value?.length <= 20),
   password: yup.string().min(6).required().trim(),
   confirm: yup.string().oneOf([yup.ref('password')]).required(),
 });
