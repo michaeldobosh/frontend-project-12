@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Formik, Form as Forma, Field } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   Col,
   Image,
@@ -15,6 +15,7 @@ import setLocale from '../setLocale';
 import join from '../img/join.png';
 
 setLocale();
+const timeout = 10000;
 
 const validateForm = yup.object().shape({
   username: yup.string().min(3).max(20).required()
@@ -24,20 +25,24 @@ const validateForm = yup.object().shape({
 });
 
 const Registration = () => {
+  const sendButton = useRef();
   const { t } = useTranslation();
   const auth = useAuth();
 
   const [{ signUpError, errorText }, setSignUpError] = useState({ signUpError: false, errorText: '' });
 
   const onSubmit = async (values, actions) => {
+    setSignUpError(false);
+    sendButton.current.disabled = true;
     const path = await routes.signupPath();
     try {
-      const { data: { token } } = await axios.post(path, values);
+      const { data: { token } } = await axios.post(path, values, { timeout });
       localStorage.setItem('userId', JSON.stringify({ token }));
       localStorage.setItem('username', values.username);
       auth.logIn();
       setSignUpError(false);
     } catch (error) {
+      sendButton.current.disabled = false;
       actions.setSubmitting(false);
       if (error.isAxiosError && error.response.status === 409) {
         setSignUpError({
@@ -118,7 +123,7 @@ const Registration = () => {
                 </Form.Group>
                 {signUpError
                 && <Form.Text className="text-danger fs-6">{t(errorText)}</Form.Text>}
-                <Button variant="outline-primary" className="mt-4 w-100 rounded-1" type="submit">
+                <Button variant="outline-primary" className="mt-4 w-100 rounded-1" type="submit" ref={sendButton}>
                   {t('signup')}
                 </Button>
               </Form>

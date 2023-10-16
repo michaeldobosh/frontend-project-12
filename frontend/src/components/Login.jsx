@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Formik, Form as Forma, Field } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import {
   Col,
   Image,
@@ -15,6 +15,7 @@ import setLocale from '../setLocale';
 import chat from '../img/web-chat.png';
 
 setLocale();
+const timeout = 10000;
 
 const validateForm = yup.object().shape({
   username: yup.string().required().trim(),
@@ -22,19 +23,22 @@ const validateForm = yup.object().shape({
 });
 
 const LoginPage = () => {
+  const sendButton = useRef();
   const auth = useAuth();
   const [{ isAuthError, errorText }, setAuthError] = useState({ isAuthError: false, errorText: '' });
   const { t } = useTranslation();
 
   const onSubmit = async (values, actions) => {
     setAuthError(false);
+    sendButton.current.disabled = true;
     try {
       const path = routes.loginPath();
-      const { data: { token } } = await axios.post(path, values);
+      const { data: { token } } = await axios.post(path, values, { timeout });
       localStorage.setItem('userId', JSON.stringify({ token }));
       localStorage.setItem('username', values.username);
       auth.logIn(token);
     } catch (error) {
+      sendButton.current.disabled = false;
       actions.setSubmitting(false);
       if (error.isAxiosError && error.response.status === 401) {
         setAuthError({
@@ -99,7 +103,7 @@ const LoginPage = () => {
 
                 {isAuthError
                 && <Form.Text className="text-danger fs-6">{t(errorText)}</Form.Text>}
-                <Button type="submit" variant="outline-primary" className="mt-4 w-100 rounded-1">
+                <Button type="submit" variant="outline-primary" className="mt-4 w-100 rounded-1" ref={sendButton}>
                   <i className="bi bi-box-arrow-in-right" />
                   { t('submit')}
                 </Button>
