@@ -39,13 +39,12 @@ const AuthProvider = ({ children }) => {
 
 const CurrentChannelProvider = ({ children }) => {
   const dispatch = useDispatch();
+  const { defaultChannel, currentChannel } = useSelector((state) => state.channels);
+
   useEffect(() => {
     dispatch(fetchMessages());
     dispatch(fetchChannels());
   }, []);
-
-  const defaultChannel = useSelector((state) => state.channels.defaultChannel);
-  const currentChannel = useSelector((state) => state.channels.currentChannel);
 
   return (
     <CurrentChannel.Provider value={{ currentChannel, setCurrentChannel, defaultChannel }}>

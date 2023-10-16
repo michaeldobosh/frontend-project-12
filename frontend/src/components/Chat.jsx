@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect, useRef } from 'react';
-import cn from 'classnames';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Container,
@@ -8,22 +7,20 @@ import {
   Col,
   Button,
   Form,
-  ListGroup,
-  ButtonGroup,
-  Dropdown,
-  Alert,
 } from 'react-bootstrap';
 import filter from 'leo-profanity';
-import { ToastContainer } from 'react-toastify';
+
 import { useSocket, useCurrentChannel } from '../hooks/index.jsx';
 import { addMessage, selectors as extractMessages } from '../slices/messagesSlice';
 import {
   addChannel,
   removeChannel,
   renameChannel,
-  selectors as extractChannels,
 } from '../slices/channelsSlice';
 import getModal from '../modals/index.js';
+import Header from './chat/Header.jsx';
+import Channels from './chat/Channels.jsx';
+import Messages from './chat/Messages.jsx';
 
 const renderModal = (api, handleClose, modals) => {
   if (!modals.action) return null;
@@ -33,10 +30,11 @@ const renderModal = (api, handleClose, modals) => {
 };
 
 const Chat = () => {
+  filter.loadDictionary('ru');
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  filter.loadDictionary('ru');
   const { socket, getResult } = useSocket();
+
   const api = {
     sendMessage: (message) => getResult('newMessage', message),
     addChannel: (channel) => getResult('newChannel', channel),
@@ -44,16 +42,15 @@ const Chat = () => {
     removeChannel: (channel) => getResult('removeChannel', channel),
   };
 
-  const { currentChannel, setCurrentChannel } = useCurrentChannel();
-  const button = useRef();
+  const sendButton = useRef();
 
   const [chatMessage, setMessage] = useState('');
   const [modalsInfo, setModalsInfo] = useState({});
   const [error, setError] = useState('');
+  const { currentChannel } = useCurrentChannel();
 
   const currentUser = localStorage.getItem('username');
   const messages = useSelector(extractMessages.selectAll);
-  const channels = useSelector(extractChannels.selectAll);
 
   const currentChannelMessages = messages
     .filter(({ messageChannel }) => messageChannel === currentChannel?.name);
@@ -77,11 +74,10 @@ const Chat = () => {
   const onSubmit = async (evt) => {
     evt.preventDefault();
     setError('');
-    button.current.disabled = true;
+    sendButton.current.disabled = true;
     const newMessage = {
       message: filter.clean(chatMessage),
       messageChannel: currentChannel.name,
-      channelId: currentChannel.id,
       username: currentUser,
     };
 
@@ -89,14 +85,9 @@ const Chat = () => {
       await api.sendMessage(newMessage);
     } catch (err) {
       setError(err.message.replaceAll(' ', '_'));
-      button.current.disabled = false;
+      sendButton.current.disabled = false;
     }
   };
-
-  const variantMessage = (user) => cn({
-    primary: user === currentUser,
-    dark: user !== currentUser,
-  });
 
   const handleShow = (evt) => {
     const modal = {
@@ -107,118 +98,22 @@ const Chat = () => {
 
     setModalsInfo(modal);
   };
+
   const handleClose = () => setModalsInfo({});
-
-  const messagesClassNames = (user) => cn(
-    'w-50 m-1 p-2 rounded-top-4 rounded-end-4 text-start d-block',
-    { 'align-self-end': user === currentUser },
-  );
-
-  const classNames = (name) => cn(
-    'w-100 rounded-0 text-start text-truncate',
-    { 'btn-secondary': name === currentChannel?.name },
-  );
-
-  const renderButtonGroup = (name, id) => (
-    <li key={id}>
-      <Dropdown as={ButtonGroup} className="w-100">
-        <Button variant="outline" className={classNames(name)} onClick={() => dispatch(setCurrentChannel({ name, id }))}>
-          {`# ${name}`}
-        </Button>
-
-        <Dropdown.Toggle
-          variant="outline"
-          id="dropdown-split-basic"
-          className={{ 'btn-secondary': name === currentChannel.name }}
-        />
-
-        <Dropdown.Menu>
-          <Dropdown.Item
-            data-action="removeChannel"
-            data-id={id}
-            data-name={name}
-            onClick={handleShow}
-          >
-            {t('remove')}
-          </Dropdown.Item>
-          <Dropdown.Item
-            data-action="renameChannel"
-            data-id={id}
-            data-name={name}
-            onClick={handleShow}
-          >
-            {t('rename')}
-          </Dropdown.Item>
-        </Dropdown.Menu>
-      </Dropdown>
-    </li>
-  );
-
-  const renderChannels = () => (
-    <ul className="nav flex-column nav-pills nav-fill px-2 mb-3 overflow-auto h-100 d-block">
-      {channels.map(({ id, name, removable }) => {
-        if (removable) {
-          return renderButtonGroup(name, id);
-        }
-        return (
-          <li key={id}>
-            <Button variant="outline" className={classNames(name)} onClick={() => dispatch(setCurrentChannel({ name, id }))}>
-              {`# ${name}`}
-            </Button>
-          </li>
-        );
-      })}
-    </ul>
-  );
 
   return currentChannel && (
     <Container className="d-md-block shadow">
       <Row className="row-cols-2">
-        <Col className="p-4 col-4 col-md-3 col-lg-2 fw-bold border-bottom border-end border-3 border-light bg-secondary bg-opacity-50">
-          <ToastContainer />
-          {t('channels')}
-          <Button
-            variant="outside"
-            className="p-0 ps-3 bi-plus-square text-primary fs-4"
-            data-action="newChannel"
-            onClick={handleShow}
-          />
-        </Col>
+        <Header handleShow={handleShow} messagesCount={currentChannelMessages.length} />
+        <Channels handleShow={handleShow} />
         {renderModal(api, handleClose, modalsInfo)}
-        <Col className="p-3 col-8 col-md-9 col-lg-10 border-bottom border-3 border-light bg-secondary bg-opacity-50">
-          <span className="fw-bold">{`# ${currentChannel?.name}`}</span>
-          <br />
-          <span>{`${currentChannelMessages.length} ${t('messages', { count: currentChannelMessages.length })}`}</span>
-        </Col>
-        <Col
-          className="py-4 px-0 col-4 col-md-3 col-lg-2 border-end border-3 border-light bg-secondary bg-opacity-50"
-          style={{ height: 700 }}
-        >
-          {renderChannels()}
-        </Col>
-        <Col className="p-3 col-8 col-md-9 col-lg-10 text-start position-relative">
-          <ListGroup className="d-flex flex-column px-2 mb-3 overflow-y-auto" style={{ height: 600 }}>
-            {currentChannelMessages
-            && currentChannelMessages.map(({ id, message, username }) => (
-              <ListGroup.Item key={id} variant={variantMessage(username)} className={messagesClassNames(username)} style={{ minHeight: `${40}px`, width: `${30}rem` }}>
-                <span className="fw-bold">
-                  {`${username}: `}
-                </span>
-                {message}
-              </ListGroup.Item>
-            ))}
-            {error
-                && (
-                <Alert variant="danger">
-                  {t(error)}
-                </Alert>
-                )}
-          </ListGroup>
+        <Col className="p-3 col-8 col-md-9 col-lg-10 text-start">
+          <Messages messages={currentChannelMessages} error={error} />
           <Form onSubmit={onSubmit} style={{ position: 'relative', bottom: 0 }}>
             <Form.Group controlId="exampleInputMessage" className="input-group-text p-0 bg-white">
               <Form.Control
                 autoFocus
-                type="message"
+                type="text"
                 name="message"
                 value={chatMessage}
                 onChange={(e) => setMessage(e.target.value)}
@@ -226,7 +121,7 @@ const Chat = () => {
                 className="border-0"
               />
               <Button
-                ref={button}
+                ref={sendButton}
                 type="submit"
                 variant="outline"
                 className="input-group-text border-0"
