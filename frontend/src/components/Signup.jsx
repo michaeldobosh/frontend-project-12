@@ -19,7 +19,7 @@ const timeout = 10000;
 
 const validateForm = yup.object().shape({
   username: yup.string().required().trim()
-    .test('username', 'from_3_to_20_characters', (value) => value?.length >= 3 && value?.length <= 20),
+    .test('username', 'from_3_to_20_characters', async (value) => await value?.length > 2 && value?.length < 21),
   password: yup.string().min(6).required().trim(),
   confirm: yup.string().oneOf([yup.ref('password')]).required(),
 });
