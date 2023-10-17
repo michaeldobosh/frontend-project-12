@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Formik, Form as Forma, Field } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import {
   Col,
   Image,
@@ -25,11 +25,9 @@ const validateForm = yup.object().shape({
 const LoginPage = () => {
   const sendButton = useRef();
   const auth = useAuth();
-  const [{ isAuthError, errorText }, setAuthError] = useState({ isAuthError: false, errorText: '' });
   const { t } = useTranslation();
 
   const onSubmit = async (values, actions) => {
-    setAuthError(false);
     sendButton.current.disabled = true;
     try {
       const path = routes.loginPath();
@@ -37,15 +35,12 @@ const LoginPage = () => {
       localStorage.setItem('userId', JSON.stringify({ token }));
       localStorage.setItem('username', values.username);
       auth.logIn(token);
-    } catch (error) {
+    } catch (e) {
       sendButton.current.disabled = false;
       actions.setSubmitting(false);
-      if (error.isAxiosError && error.response.status === 401) {
-        setAuthError({
-          isAuthError: true,
-          errorText: error.message
-            .replaceAll(' ', '_').toLowerCase(),
-        });
+      if (e.isAxiosError && e.response.status === 401) {
+        const error = e.message.replaceAll(' ', '_').toLowerCase();
+        actions.setErrors({ username: ' ', password: error });
       }
     }
   };
@@ -61,9 +56,9 @@ const LoginPage = () => {
         >
           {({ errors, touched }) => {
             const showErrors = (fieldName) => {
-              if (errors[fieldName] && touched[fieldName]) {
+              if (errors[fieldName]?.trim() && touched[fieldName]) {
                 return (
-                  <Form.Text className="position-absolute top-25 start-25 px-3 py-1 bg-danger rounded-1 text-white opacity-75">
+                  <Form.Text className="invalid-tooltip m-0">
                     {t(errors[fieldName])}
                   </Form.Text>
                 );
@@ -75,21 +70,21 @@ const LoginPage = () => {
               <Form as={Forma}>
                 <Form.Text className="fs-1 text-center">{t('enter')}</Form.Text>
 
-                <Form.Group controlId="formBasicName" className="pb-2">
-                  <Form.Label />
+                <Form.Floating className="mb-3">
                   <Form.Control
                     as={Field}
+                    autoFocus
                     type="text"
                     placeholder={t('your_nickname')}
                     name="username"
                     className={errors.username
                       && touched.username ? 'is-invalid' : null}
                   />
+                  <Form.Label htmlFor="username">{t('your_nickname')}</Form.Label>
                   {showErrors('username')}
-                </Form.Group>
+                </Form.Floating>
 
-                <Form.Group controlId="exampleInputPassword" className="pb-2">
-                  <Form.Label />
+                <Form.Floating className="mb-3">
                   <Form.Control
                     as={Field}
                     type="password"
@@ -98,11 +93,9 @@ const LoginPage = () => {
                     className={errors.password
                       && touched.password ? 'is-invalid' : null}
                   />
+                  <Form.Label htmlFor="password">{t('password')}</Form.Label>
                   {showErrors('password')}
-                </Form.Group>
-
-                {isAuthError
-                && <Form.Text className="text-danger fs-6">{t(errorText)}</Form.Text>}
+                </Form.Floating>
                 <Button type="submit" variant="outline-primary" className="mt-4 w-100 rounded-1" ref={sendButton}>
                   <i className="bi bi-box-arrow-in-right" />
                   { t('submit')}

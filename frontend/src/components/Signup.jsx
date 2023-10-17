@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { Formik, Form as Forma, Field } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import {
   Col,
   Image,
@@ -29,10 +29,7 @@ const Registration = () => {
   const { t } = useTranslation();
   const auth = useAuth();
 
-  const [{ signUpError, errorText }, setSignUpError] = useState({ signUpError: false, errorText: '' });
-
   const onSubmit = async (values, actions) => {
-    setSignUpError(false);
     sendButton.current.disabled = true;
     const path = await routes.signupPath();
     try {
@@ -40,16 +37,12 @@ const Registration = () => {
       localStorage.setItem('userId', JSON.stringify({ token }));
       localStorage.setItem('username', values.username);
       auth.logIn();
-      setSignUpError(false);
-    } catch (error) {
+    } catch (e) {
       sendButton.current.disabled = false;
       actions.setSubmitting(false);
-      if (error.isAxiosError && error.response.status === 409) {
-        setSignUpError({
-          signUpError: true,
-          errorText: error.message
-            .replaceAll(' ', '_').toLowerCase(),
-        });
+      if (e.isAxiosError && e.response.status === 409) {
+        const error = e.message.replaceAll(' ', '_').toLowerCase();
+        actions.setErrors({ username: ' ', password: ' ', confirm: error });
       }
     }
   };
@@ -69,9 +62,9 @@ const Registration = () => {
         >
           {({ errors, touched }) => {
             const showErrors = (fieldName) => {
-              if (errors[fieldName] && touched[fieldName]) {
+              if (errors[fieldName]?.trim() && touched[fieldName]) {
                 return (
-                  <Form.Text className="position-absolute top-25 start-25 px-3 py-1 bg-danger rounded-1 text-white opacity-75">
+                  <Form.Text className="invalid-tooltip m-0">
                     {t(errors[fieldName])}
                   </Form.Text>
                 );
@@ -82,47 +75,46 @@ const Registration = () => {
             return (
               <Form as={Forma}>
                 <Form.Text className="fs-1 text-center">{t('reg')}</Form.Text>
-                <Form.Group controlId="formBasicName" className="pb-2">
-                  <Form.Label />
+                <Form.Floating className="mb-3">
                   <Form.Control
                     as={Field}
-                    type="text"
-                    placeholder={t('username')}
+                    autoFocus
+                    autoComplete="username"
+                    placeholder={t('from_3_to_20_characters')}
                     name="username"
                     className={errors.username
                       && touched.username ? 'is-invalid' : null}
                   />
+                  <Form.Label htmlFor="username">{t('username')}</Form.Label>
                   {showErrors('username')}
-                </Form.Group>
+                </Form.Floating>
 
-                <Form.Group controlId="formBasicPassword" className="pb-2">
-                  <Form.Label />
+                <Form.Floating className="mb-3">
                   <Form.Control
                     as={Field}
                     name="password"
                     type="password"
-                    autoComplete="password"
-                    placeholder={t('password')}
+                    autoComplete="new-password"
+                    placeholder={t('min_6')}
                     className={errors.password
                       && touched.password ? 'is-invalid' : null}
                   />
+                  <Form.Label htmlFor="password">{t('password')}</Form.Label>
                   {showErrors('password')}
-                </Form.Group>
+                </Form.Floating>
 
-                <Form.Group controlId="formBasicconfirm" className="pb-2">
-                  <Form.Label />
+                <Form.Floating className="mb-3">
                   <Form.Control
                     as={Field}
                     name="confirm"
                     type="password"
-                    placeholder={t('password_conf')}
+                    placeholder={t('password_mismatch')}
                     className={errors.confirm
                       && touched.confirm ? 'is-invalid' : null}
                   />
+                  <Form.Label htmlFor="confirm">{t('password_conf')}</Form.Label>
                   {showErrors('confirm')}
-                </Form.Group>
-                {signUpError
-                && <Form.Text className="text-danger fs-6">{t(errorText)}</Form.Text>}
+                </Form.Floating>
                 <Button variant="outline-primary" className="mt-4 w-100 rounded-1" type="submit" ref={sendButton}>
                   {t('signup')}
                 </Button>

@@ -44,5 +44,6 @@ export default {
     return_to_chat: 'Вернуться в чат!',
     site_version: 'Версия сайта: ',
     operation_has_timed_out: 'Ошибка соединения',
+    empty_message: '',
   },
 };
