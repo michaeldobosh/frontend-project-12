@@ -3,6 +3,7 @@ export default {
     default: 'Validation error',
     enter: 'Come In',
     your_nickname: 'Your login',
+    username: 'User name',
     password: 'Password',
     password_conf: 'Confirm the password',
     password_mismatch: 'Password mismatch',

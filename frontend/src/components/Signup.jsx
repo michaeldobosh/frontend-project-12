@@ -87,7 +87,7 @@ const Registration = () => {
                   <Form.Control
                     as={Field}
                     type="text"
-                    placeholder={t('your_nickname')}
+                    placeholder={t('username')}
                     name="username"
                     className={errors.username
                       && touched.username ? 'is-invalid' : null}
