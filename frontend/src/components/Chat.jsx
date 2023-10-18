@@ -117,6 +117,7 @@ const Chat = () => {
                 name="message"
                 value={chatMessage}
                 onChange={(e) => setMessage(e.target.value)}
+                aria-label={t('new_message')}
                 placeholder={t('enter_your_message')}
                 className="border-0"
               />

@@ -21,6 +21,7 @@ export default {
     log_in: 'Log in',
     brand_badge: 'Hexlet Chat',
     enter_your_message: 'Enter your message...',
+    new_message: 'New_message',
     channels: 'Channels',
     messages_one: 'message',
     messages_few: 'messages',
