@@ -39,6 +39,7 @@ export default {
     newChannel: 'Channel created',
     renameChannel: 'Channel renamed',
     removeChannel: 'Channel removed',
+    channelName: 'Сhannel name',
     russian: 'ru',
     english: 'en',
     page_not_found: 'Page not found',

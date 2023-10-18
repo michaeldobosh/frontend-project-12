@@ -61,6 +61,7 @@ const AddChannel = ({ api, handleClose, modalsInfo }) => {
             <Form.Control
               type="text"
               name="name"
+              id="name"
               ref={inputRef}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
@@ -68,6 +69,7 @@ const AddChannel = ({ api, handleClose, modalsInfo }) => {
               className={(formik.errors.name
                 && formik.submitCount) || errors ? 'is-invalid' : null}
             />
+            <Form.Label htmlFor="name" className="visually-hidden">{t('channelName')}</Form.Label>
             <Form.Control.Feedback type="invalid">
               {formik.errors.name && formik.submitCount
                 ? t(formik.errors.name)
