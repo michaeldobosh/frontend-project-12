@@ -22,7 +22,6 @@ const renderButtonGroup = (handleShow, name, id, t) => {
   const actions = [['removeChannel', 'remove'], ['renameChannel', 'rename']];
   return (
     <Dropdown.Menu>
-      <span className="visually-hidden">{t('channel_management')}</span>
       {actions.map(([action, buttonName]) => (
         <Dropdown.Item
           key={_.uniqueId()}
@@ -63,7 +62,9 @@ const Channels = ({ handleShow }) => {
                 variant="outline"
                 id="dropdown-split-basic"
                 className={{ 'btn-secondary': isCurrent }}
-              />
+              >
+                <span className="visually-hidden">{t('channel_management')}</span>
+              </Dropdown.Toggle>
               {renderButtonGroup(handleShow, name, id, t)}
             </Dropdown>
           </li>
