@@ -19,7 +19,9 @@ const Header = ({ handleShow, messagesCount }) => {
           variant="outside p-0 ps-3 bi-plus-square text-primary fs-4"
           data-action="newChannel"
           onClick={handleShow}
-        />
+        >
+          <span className="visually-hidden">+</span>
+        </Button>
       </Col>
       <Col
         className="p-3 col-8 col-md-9 col-lg-10 border-bottom border-3 border-light"
