@@ -9,6 +9,5 @@ export default () => setLocale({
   },
   string: {
     min: 'min_${min}',
-    max: 'max_${max}',
   },
 });

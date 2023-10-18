@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { Formik, Form as Forma, Field } from 'formik';
+import { useFormik } from 'formik';
 import { useTranslation } from 'react-i18next';
-import { useRef } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import {
   Col,
   Image,
@@ -15,113 +15,132 @@ import setLocale from '../setLocale';
 import join from '../img/join.png';
 
 setLocale();
-const timeout = 10000;
 
-const validateForm = yup.object().shape({
+const validationSchema = yup.object().shape({
   username: yup.string().required().trim()
-    .test('username', 'from_3_to_20_characters', async (value) => await value?.length > 2 && value?.length < 21),
+    .min(3, 'from_3_to_20_characters')
+    .max(20, 'from_3_to_20_characters'),
   password: yup.string().min(6).required().trim(),
-  confirm: yup.string().oneOf([yup.ref('password')]).required(),
+  confirm: yup.string().oneOf([yup.ref('password')]),
 });
 
 const Registration = () => {
   const sendButton = useRef();
+  const inputRef = useRef();
   const { t } = useTranslation();
   const auth = useAuth();
 
-  const onSubmit = async (values, actions) => {
-    sendButton.current.disabled = true;
-    const path = await routes.signupPath();
-    try {
-      const { data: { token } } = await axios.post(path, values, { timeout });
-      localStorage.setItem('userId', JSON.stringify({ token }));
-      localStorage.setItem('username', values.username);
-      auth.logIn();
-    } catch (e) {
-      sendButton.current.disabled = false;
-      actions.setSubmitting(false);
-      if (e.isAxiosError && e.response.status === 409) {
-        const error = e.message.replaceAll(' ', '_').toLowerCase();
-        actions.setErrors({ username: ' ', password: ' ', confirm: error });
+  const [errors, setErrors] = useState(false);
+
+  useEffect(() => {
+    inputRef.current.focus();
+  }, []);
+
+  const formik = useFormik({
+    initialValues: {
+      username: '',
+      password: '',
+      confirm: '',
+    },
+    validationSchema,
+    onSubmit: async (values, actions) => {
+      sendButton.current.disabled = true;
+      const path = await routes.signupPath();
+      try {
+        const { data: { token } } = await axios.post(path, values);
+        localStorage.setItem('userId', JSON.stringify({ token }));
+        localStorage.setItem('username', values.username);
+        auth.logIn();
+      } catch (error) {
+        sendButton.current.disabled = false;
+        actions.setSubmitting(false);
+        if (error.isAxiosError && error.response.status === 409) {
+          inputRef.current.select();
+          setErrors(true);
+        }
+        throw error;
       }
+    },
+  });
+
+  const showErrors = (fieldName) => {
+    if (formik.errors[fieldName]?.trim() && formik.touched[fieldName]) {
+      return (
+        <Form.Text className="invalid-tooltip m-0">
+          {t(formik.errors[fieldName])}
+        </Form.Text>
+      );
     }
+    return null;
   };
+
+  console.log(formik.errors);
 
   return (
     <>
       <Col><Image src={join} alt="chat" className="w-100" /></Col>
       <Col>
-        <Formik
-          initialValues={{
-            username: '',
-            password: '',
-            confirm: '',
-          }}
-          validationSchema={validateForm}
-          onSubmit={onSubmit}
-        >
-          {({ errors, touched }) => {
-            const showErrors = (fieldName) => {
-              if (errors[fieldName]?.trim() && touched[fieldName]) {
-                return (
-                  <Form.Text className="invalid-tooltip m-0">
-                    {t(errors[fieldName])}
-                  </Form.Text>
-                );
-              }
-              return null;
-            };
+        <Form onSubmit={formik.handleSubmit}>
+          <h1 className="fs-1 text-center">{t('reg')}</h1>
+          <Form.Group className="form-floating mb-3">
+            <Form.Control
+              name="username"
+              id="username"
+              ref={inputRef}
+              required
+              autoComplete="username"
+              placeholder={t('from_3_to_20_characters')}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.username}
+              className={(formik.errors.username
+                && formik.touched.username) || errors ? 'is-invalid' : null}
+            />
+            <Form.Label htmlFor="username">{t('username')}</Form.Label>
+            {showErrors('username')}
+          </Form.Group>
 
-            return (
-              <Form as={Forma}>
-                <Form.Text className="fs-1 text-center">{t('reg')}</Form.Text>
-                <Form.Floating className="mb-3">
-                  <Form.Control
-                    as={Field}
-                    autoFocus
-                    autoComplete="username"
-                    placeholder={t('from_3_to_20_characters')}
-                    name="username"
-                    className={errors.username
-                      && touched.username ? 'is-invalid' : null}
-                  />
-                  <Form.Label htmlFor="username">{t('username')}</Form.Label>
-                  {showErrors('username')}
-                </Form.Floating>
+          <Form.Group className="form-floating mb-3">
+            <Form.Control
+              name="password"
+              id="password"
+              type="password"
+              required
+              autoComplete="new-password"
+              placeholder={t('min_6')}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.password}
+              className={(formik.errors.password
+                && formik.touched.password) || errors ? 'is-invalid' : null}
+            />
+            <Form.Label htmlFor="password">{t('password')}</Form.Label>
+            {showErrors('password')}
+          </Form.Group>
 
-                <Form.Floating className="mb-3">
-                  <Form.Control
-                    as={Field}
-                    name="password"
-                    type="password"
-                    autoComplete="new-password"
-                    placeholder={t('min_6')}
-                    className={errors.password
-                      && touched.password ? 'is-invalid' : null}
-                  />
-                  <Form.Label htmlFor="password">{t('password')}</Form.Label>
-                  {showErrors('password')}
-                </Form.Floating>
-
-                <Form.Floating className="mb-3">
-                  <Form.Control
-                    as={Field}
-                    name="confirm"
-                    type="password"
-                    placeholder={t('password_mismatch')}
-                    className={errors.confirm
-                      && touched.confirm ? 'is-invalid' : null}
-                  />
-                  <Form.Label htmlFor="confirm">{t('password_conf')}</Form.Label>
-                  {showErrors('confirm')}
-                </Form.Floating>
-                <Button variant="outline-primary" className="mt-4 w-100 rounded-1" type="submit" ref={sendButton}>
-                  {t('signup')}
-                </Button>
-              </Form>
-            );
-          }}
-        </Formik>
+          <Form.Group className="form-floating mb-3">
+            <Form.Control
+              name="confirm"
+              id="confirm"
+              type="password"
+              required
+              autoComplete="new-password"
+              placeholder={t('password_mismatch')}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.confirm}
+              className={(formik.errors.confirm
+                && formik.touched.confirm) || errors ? 'is-invalid' : null}
+            />
+            <Form.Label htmlFor="confirm">{t('password_conf')}</Form.Label>
+            {formik.errors.confirm
+              ? showErrors('confirm')
+              : <Form.Text className="invalid-tooltip m-0">{t('already_exists')}</Form.Text>}
+          </Form.Group>
+          <Button variant="outline-primary" className="mt-4 w-100 rounded-1" type="submit" ref={sendButton}>
+            {t('signup')}
+          </Button>
+        </Form>
       </Col>
     </>
   );

@@ -110,7 +110,7 @@ const Chat = () => {
         <Col className="p-3 col-8 col-md-9 col-lg-10 text-start">
           <Messages messages={currentChannelMessages} error={error} />
           <Form onSubmit={onSubmit} style={{ position: 'relative', bottom: 0 }}>
-            <Form.Group controlId="exampleInputMessage" className="input-group-text p-0 bg-white">
+            <Form.Group className="input-group-text p-0 bg-white">
               <Form.Control
                 autoFocus
                 type="text"

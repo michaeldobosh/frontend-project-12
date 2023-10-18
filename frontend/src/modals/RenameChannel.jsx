@@ -1,15 +1,10 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSelector, useDispatch } from 'react-redux';
-import {
-  Modal,
-  Button,
-  Form,
-  Alert,
-} from 'react-bootstrap';
+import { Modal, Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
-import { Formik, Form as Forma, Field } from 'formik';
+import { useFormik } from 'formik';
 import { useCurrentChannel } from '../hooks/index.jsx';
 import { selectors } from '../slices/channelsSlice';
 import setLocale from '../setLocale';
@@ -21,68 +16,74 @@ const RenameChannel = ({ api, handleClose, modalsInfo }) => {
   const { currentChannel, setCurrentChannel } = useCurrentChannel();
   const notify = (message) => toast.success(message);
   const dispatch = useDispatch();
+  const inputRef = useRef();
 
-  const [error, setError] = useState('');
+  useEffect(() => {
+    inputRef.current.focus();
+  }, []);
+
+  const [errors, setErrors] = useState('');
   const channelsNames = useSelector(selectors.selectAll)
     .map((c) => c.name)
     .filter((name) => name !== modalsInfo.name);
 
-  const validateSchema = yup.object({
-    name: yup.string().min(3).max(20).required()
+  const validationSchema = yup.object({
+    name: yup.string().required()
+      .min(3, 'from_3_to_20_characters')
+      .max(20, 'from_3_to_20_characters')
       .notOneOf(channelsNames),
   });
 
-  const onSubmit = async ({ name }, actions) => {
-    setError('');
-    try {
-      if (modalsInfo.name === currentChannel.name) {
-        dispatch(setCurrentChannel({ id: modalsInfo.id, name }));
+  const formik = useFormik({
+    initialValues: { name: modalsInfo.name },
+    validationSchema,
+    onSubmit: async ({ name }, actions) => {
+      setErrors(false);
+      try {
+        if (modalsInfo.name === currentChannel.name) {
+          dispatch(setCurrentChannel({ id: modalsInfo.id, name }));
+        }
+        await api.renameChannel({ id: modalsInfo.id, name });
+        await handleClose();
+        notify(t(modalsInfo.action));
+      } catch (err) {
+        inputRef.current.select();
+        setErrors(true);
+        actions.setSubmitting(false);
       }
-      await api.renameChannel({ id: modalsInfo.id, name });
-      await handleClose();
-      notify(t(modalsInfo.action));
-    } catch (err) {
-      setError(err.message.replaceAll(' ', '_'));
-      actions.setSubmitting(false);
-    }
-  };
+    },
+  });
 
   return (
     <Modal show={modalsInfo.action} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>{t('rename_channel')}</Modal.Title>
+        <Modal.Title>{t('add_channel')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
-        <Formik
-          initialValues={{ name: modalsInfo.name }}
-          validationSchema={validateSchema}
-          onSubmit={onSubmit}
-        >
-          {({ errors, submitCount }) => (
-            <Form as={Forma}>
-              <Form.Group controlId="validationCustom01">
-                <Form.Control
-                  as={Field}
-                  autoFocus
-                  type="text"
-                  name="name"
-                  className={errors.name
-                    && submitCount ? 'is-invalid' : null}
-                />
-                <Form.Control.Feedback type="invalid">
-                  {errors.name && submitCount ? t(errors.name) : null}
-                </Form.Control.Feedback>
-                {error && (
-                  <Alert variant="danger mt-2">{t(error)}</Alert>
-                )}
-              </Form.Group>
-              <Modal.Footer>
-                <Button variant="secondary" onClick={handleClose}>{t('cancel')}</Button>
-                <Button type="submit" variant="primary">{t('submit')}</Button>
-              </Modal.Footer>
-            </Form>
-          )}
-        </Formik>
+        <Form onSubmit={formik.handleSubmit}>
+          <Form.Group controlId="validationCustom01">
+            <Form.Control
+              type="text"
+              name="name"
+              ref={inputRef}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+              value={formik.values.name}
+              onFocus={() => inputRef.current.select()}
+              className={(formik.errors.name
+                && formik.submitCount) || errors ? 'is-invalid' : null}
+            />
+            <Form.Control.Feedback type="invalid">
+              {formik.errors.name && formik.submitCount
+                ? t(formik.errors.name)
+                : t('operation_has_timed_out')}
+            </Form.Control.Feedback>
+          </Form.Group>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleClose}>{t('cancel')}</Button>
+            <Button type="submit" variant="primary">{t('submit')}</Button>
+          </Modal.Footer>
+        </Form>
       </Modal.Body>
     </Modal>
   );
