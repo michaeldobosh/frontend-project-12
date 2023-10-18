@@ -16,11 +16,12 @@ const Header = ({ handleShow, messagesCount }) => {
       >
         {t('channels')}
         <Button
-          variant="outside p-0 ps-3 bi-plus-square text-primary fs-4"
+          variant="outline"
+          className="p-0 ms-5 text-primary btn-group-vertical"
           data-action="newChannel"
           onClick={handleShow}
         >
-          <span className="visually-hidden">+</span>
+          +
         </Button>
       </Col>
       <Col
