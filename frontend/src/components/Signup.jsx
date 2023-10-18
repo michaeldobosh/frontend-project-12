@@ -44,6 +44,7 @@ const Registration = () => {
     },
     validationSchema,
     onSubmit: async (values, actions) => {
+      setErrors(false);
       sendButton.current.disabled = true;
       const path = await routes.signupPath();
       try {

@@ -40,6 +40,7 @@ const LoginPage = () => {
     },
     validationSchema,
     onSubmit: async (values, actions) => {
+      setErrors(false);
       sendButton.current.disabled = true;
       try {
         const path = routes.loginPath();

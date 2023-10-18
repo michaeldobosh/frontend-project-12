@@ -22,6 +22,7 @@ const renderButtonGroup = (handleShow, name, id, t) => {
   const actions = [['removeChannel', 'remove'], ['renameChannel', 'rename']];
   return (
     <Dropdown.Menu>
+      <span className="visually-hidden">{t('channel_management')}</span>
       {actions.map(([action, buttonName]) => (
         <Dropdown.Item
           key={_.uniqueId()}

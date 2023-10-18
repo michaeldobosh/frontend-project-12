@@ -57,7 +57,7 @@ const RenameChannel = ({ api, handleClose, modalsInfo }) => {
   return (
     <Modal show={modalsInfo.action} onHide={handleClose}>
       <Modal.Header closeButton>
-        <Modal.Title>{t('add_channel')}</Modal.Title>
+        <Modal.Title>{t('rename_channel')}</Modal.Title>
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={formik.handleSubmit}>

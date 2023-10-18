@@ -30,7 +30,6 @@ const renderModal = (api, handleClose, modals) => {
 };
 
 const Chat = () => {
-  filter.loadDictionary('ru');
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const { socket, getResult } = useSocket();

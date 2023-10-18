@@ -23,6 +23,7 @@ export default {
     enter_your_message: 'Введите сообщение...',
     new_message: 'Новое сообщение',
     channels: 'Каналы',
+    channel_management: 'Управление каналом',
     messages_one: 'сообщение',
     messages_few: 'сообщения',
     messages_many: 'сообщений',

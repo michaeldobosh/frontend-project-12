@@ -15,18 +15,19 @@ const RemoveChannel = ({ api, handleClose, modalsInfo }) => {
   const { defaultChannel, setCurrentChannel } = useCurrentChannel();
   const dispatch = useDispatch();
   const notify = (message) => toast.success(message);
-  const [error, setError] = useState('');
+  const [errors, setErrors] = useState(false);
 
   const onSubmit = async (evt) => {
     evt.preventDefault();
-    setError('');
+    setErrors(false);
     try {
       await api.removeChannel({ id: modalsInfo.id });
       await dispatch(setCurrentChannel(defaultChannel));
       notify(t(modalsInfo.action));
       handleClose();
-    } catch (err) {
-      setError(err.message.replaceAll(' ', '_'));
+    } catch (error) {
+      setErrors(true);
+      throw error;
     }
   };
 
@@ -39,8 +40,8 @@ const RemoveChannel = ({ api, handleClose, modalsInfo }) => {
         <Form onSubmit={onSubmit}>
           <Form.Text className="fs-5">{t('convinced')}</Form.Text>
           <br />
-          {error && (
-            <Alert variant="danger" className="mt-2">{t(error)}</Alert>
+          {errors && (
+            <Alert variant="danger" className="mt-2">{t('operation_has_timed_out')}</Alert>
           )}
           <div className="modal-footer">
             <Button variant="secondary" onClick={handleClose}>{t('cancel')}</Button>

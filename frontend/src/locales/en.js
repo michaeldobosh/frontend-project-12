@@ -23,6 +23,7 @@ export default {
     enter_your_message: 'Enter your message...',
     new_message: 'New_message',
     channels: 'Channels',
+    channel_management: 'Channel management',
     messages_one: 'message',
     messages_few: 'messages',
     messages_many: 'messages',
