@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   BrowserRouter as Router,
@@ -31,7 +31,7 @@ const AuthProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ loggedIn, logIn, logOut }}>
+    <UserContext.Provider value={useMemo(() => ({ loggedIn, logIn, logOut }), [loggedIn])}>
       {children}
     </UserContext.Provider>
   );
@@ -47,7 +47,12 @@ const CurrentChannelProvider = ({ children }) => {
   }, []);
 
   return (
-    <CurrentChannel.Provider value={{ currentChannel, setCurrentChannel, defaultChannel }}>
+    <CurrentChannel.Provider value={useMemo(() => ({
+      currentChannel,
+      setCurrentChannel,
+      defaultChannel,
+    }), [currentChannel, defaultChannel])}
+    >
       {children}
     </CurrentChannel.Provider>
   );

@@ -57,7 +57,7 @@ const AddChannel = ({ api, handleClose, modalsInfo }) => {
       </Modal.Header>
       <Modal.Body>
         <Form onSubmit={formik.handleSubmit}>
-          <Form.Group controlId="validationCustom01">
+          <Form.Group>
             <Form.Control
               type="text"
               name="name"

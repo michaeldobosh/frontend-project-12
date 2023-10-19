@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Provider } from 'react-redux';
 import { initReactI18next } from 'react-i18next';
 import { createRoot } from 'react-dom/client';
@@ -37,7 +37,7 @@ const init = async (socket) => {
     });
 
     return (
-      <SocketContext.Provider value={{ socket, getResult }}>
+      <SocketContext.Provider value={useMemo(() => ({ socket, getResult }), [])}>
         {children}
       </SocketContext.Provider>
     );
