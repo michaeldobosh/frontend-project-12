@@ -1,12 +1,14 @@
 import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
 import { Col, Button } from 'react-bootstrap';
 import { ToastContainer } from 'react-toastify';
 
-import { useCurrentChannel } from '../../hooks/index.jsx';
+// import { useCurrentChannel } from '../../hooks/index.jsx';
 
 const Header = ({ handleShow, messagesCount }) => {
   const { t } = useTranslation();
-  const { currentChannel } = useCurrentChannel();
+  // const { currentChannel } = useCurrentChannel();
+  const { currentChannel } = useSelector((state) => state.channels);
 
   return (
     <>

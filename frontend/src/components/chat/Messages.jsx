@@ -18,7 +18,7 @@ const Messages = ({ messages, error }) => {
           <ListGroup.Item
             key={id}
             variant={messagesStyles(username)}
-            className="w-50 m-1 p-2 rounded-top-4 rounded-end-4"
+            className="w-50 m-1 p-2 rounded-top-4 rounded-end-4 text-break"
           >
             <span className="fw-bold">{`${username}: `}</span>
             {message}

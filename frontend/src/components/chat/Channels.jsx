@@ -10,8 +10,8 @@ import { useTranslation } from 'react-i18next';
 import cn from 'classnames';
 import _ from 'lodash';
 
-import { selectors as extractChannels } from '../../slices/channelsSlice';
-import { useCurrentChannel } from '../../hooks/index.jsx';
+import { setCurrentChannel, selectors as extractChannels } from '../../slices/channelsSlice';
+// import { useCurrentChannel } from '../../hooks/index.jsx';
 
 const buttonsStyle = (isCurrent) => cn(
   'w-100 rounded-0 text-start text-truncate',
@@ -41,11 +41,20 @@ const Channels = ({ handleShow }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
-  const { currentChannel, setCurrentChannel } = useCurrentChannel();
+  // const { currentChannel, setCurrentChannel } = useCurrentChannel();
+  const currentChannel = useSelector((state) => state.channels.currentChannel);
   const channels = useSelector(extractChannels.selectAll);
+  // console.log(`Отрисовка Channels в ${new Date().toLocaleString()} `);
+
+  const focus = (evt) => evt.currentTarget.scrollIntoView({ block: 'end', behavior: 'smooth' });
 
   const button = (name, id, isCurrent) => (
-    <Button variant="outline" className={buttonsStyle(isCurrent)} onClick={() => dispatch(setCurrentChannel({ name, id }))}>
+    <Button
+      variant="outline"
+      className={buttonsStyle(isCurrent)}
+      onClick={() => dispatch(setCurrentChannel({ name, id }))}
+      onFocus={(evt) => focus(evt)}
+    >
       {`# ${name}`}
     </Button>
   );
@@ -53,6 +62,7 @@ const Channels = ({ handleShow }) => {
   const renderChannels = () => (
     <ul className="nav flex-column nav-pills nav-fill px-2 mb-3 overflow-auto h-100 d-block">
       {channels.map(({ id, name, removable }) => {
+        // console.log(name, currentChannel.name);
         const isCurrent = name === currentChannel.name;
         return removable ? (
           <li key={id}>
@@ -68,7 +78,11 @@ const Channels = ({ handleShow }) => {
               {renderButtonGroup(handleShow, name, id, t)}
             </Dropdown>
           </li>
-        ) : <li key={id}>{button(name, id, isCurrent)}</li>;
+        ) : (
+          <li key={id}>
+            {button(name, id, isCurrent)}
+          </li>
+        );
       })}
     </ul>
   );

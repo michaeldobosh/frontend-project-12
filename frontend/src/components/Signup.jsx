@@ -7,6 +7,7 @@ import {
   Image,
   Button,
   Form,
+  Spinner,
 } from 'react-bootstrap';
 import * as yup from 'yup';
 import routes from '../routes';
@@ -139,6 +140,12 @@ const Registration = () => {
               : <Form.Text className="invalid-tooltip m-0">{t('already_exists')}</Form.Text>}
           </Form.Group>
           <Button variant="outline-primary" className="mt-4 w-100 rounded-1" type="submit" ref={sendButton}>
+            {formik.isSubmitting
+              && (
+              <Spinner animation="border" role="status" className="position-absolute">
+                <span className="visually-hidden">Loading...</span>
+              </Spinner>
+              )}
             {t('signup')}
           </Button>
         </Form>

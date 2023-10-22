@@ -7,6 +7,7 @@ import {
   Image,
   Button,
   Form,
+  Spinner,
 } from 'react-bootstrap';
 import * as yup from 'yup';
 import routes from '../routes';
@@ -108,6 +109,12 @@ const LoginPage = () => {
             </Form.Text>
           </Form.Group>
           <Button type="submit" variant="outline-primary" className="mt-4 w-100 rounded-1" ref={sendButton}>
+            {formik.isSubmitting
+            && (
+            <Spinner animation="border" role="status" className="position-absolute">
+              <span className="visually-hidden">Loading...</span>
+            </Spinner>
+            )}
             <i className="bi bi-box-arrow-in-right" />
             { t('enter')}
           </Button>

@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useState, useMemo } from 'react';
+// import { useSelector, useDispatch } from 'react-redux';
 import {
   BrowserRouter as Router,
   Routes,
@@ -12,11 +12,11 @@ import Chat from './Chat';
 import LoginPage from './Login';
 import Error from './Error404';
 import Registration from './Signup';
-import { UserContext, CurrentChannel } from '../contexts/index.jsx';
+import { UserContext } from '../contexts/index.jsx';
 import { useAuth } from '../hooks/index.jsx';
 import getAuthHeader from '../getAuthHeader.js';
-import { fetchChannels, setCurrentChannel } from '../slices/channelsSlice';
-import { fetchMessages } from '../slices/messagesSlice';
+// import { fetchChannels, setCurrentChannel } from '../slices/channelsSlice';
+// import { fetchMessages } from '../slices/messagesSlice';
 import FormContainer from './FormContainer';
 
 const AuthProvider = ({ children }) => {
@@ -37,26 +37,27 @@ const AuthProvider = ({ children }) => {
   );
 };
 
-const CurrentChannelProvider = ({ children }) => {
-  const dispatch = useDispatch();
-  const { defaultChannel, currentChannel } = useSelector((state) => state.channels);
+// const CurrentChannelProvider = ({ children }) => {
+//   const dispatch = useDispatch();
+//   const { defaultChannel, currentChannel } = useSelector((state) => state.channels);
+//   console.log(currentChannel, 'App');
 
-  useEffect(() => {
-    dispatch(fetchMessages());
-    dispatch(fetchChannels());
-  }, []);
+//   useEffect(() => {
+//     dispatch(setCurrentChannel({ id: 1, name: 'general' }));
+//     dispatch(fetchMessages());
+//     dispatch(fetchChannels());
+//   }, []);
 
-  return (
-    <CurrentChannel.Provider value={useMemo(() => ({
-      currentChannel,
-      setCurrentChannel,
-      defaultChannel,
-    }), [currentChannel, defaultChannel])}
-    >
-      {children}
-    </CurrentChannel.Provider>
-  );
-};
+//   return (
+//     <CurrentChannel.Provider value={useMemo(() => ({
+//       currentChannel,
+//       defaultChannel,
+//     }), [currentChannel, defaultChannel])}
+//     >
+//       {children}
+//     </CurrentChannel.Provider>
+//   );
+// };
 
 const PrivateRoute = ({ children }) => {
   const auth = useAuth();
@@ -81,9 +82,9 @@ const App = () => (
             index
             element={(
               <PrivateRoute>
-                <CurrentChannelProvider>
-                  <Chat />
-                </CurrentChannelProvider>
+                {/* <CurrentChannelProvider> */}
+                <Chat />
+                {/* </CurrentChannelProvider> */}
               </PrivateRoute>
             )}
           />

@@ -10,12 +10,14 @@ import {
 } from 'react-bootstrap';
 import filter from 'leo-profanity';
 
-import { useSocket, useCurrentChannel } from '../hooks/index.jsx';
-import { addMessage, selectors as extractMessages } from '../slices/messagesSlice';
+import { useSocket } from '../hooks/index.jsx';
+import { fetchMessages, addMessage, selectors as extractMessages } from '../slices/messagesSlice';
 import {
+  fetchChannels,
   addChannel,
   removeChannel,
   renameChannel,
+  // setCurrentChannel,
 } from '../slices/channelsSlice';
 import getModal from '../modals/index.js';
 import Header from './chat/Header.jsx';
@@ -46,13 +48,21 @@ const Chat = () => {
   const [chatMessage, setMessage] = useState('');
   const [modalsInfo, setModalsInfo] = useState({});
   const [error, setError] = useState('');
-  const { currentChannel } = useCurrentChannel();
+  // const { currentChannel } = useCurrentChannel();
+  const currentChannel = useSelector((state) => state.channels.currentChannel);
+  // console.log(currentChannel);
+  setInterval(() => console.log(currentChannel, new Date().toLocaleTimeString()), 5000);
 
   const currentUser = localStorage.getItem('username');
   const messages = useSelector(extractMessages.selectAll);
 
   const currentChannelMessages = messages
     .filter(({ messageChannel }) => messageChannel === currentChannel?.name);
+
+  useEffect(() => {
+    dispatch(fetchMessages());
+    dispatch(fetchChannels());
+  }, []);
 
   useEffect(() => {
     socket.on('newMessage', (newMessage) => {
@@ -67,7 +77,15 @@ const Chat = () => {
     });
     socket.on('removeChannel', (data) => {
       dispatch(removeChannel(data.id));
+      // console.log(currentChannel, 'test');
+      // const res = currentChannel?.id === data.id;
+      // console.log(currentChannel?.id, data.id);
+      // if (res) {
+      //   dispatch(setCurrentChannel(defaultChannel));
+      // }
     });
+
+    // console.log(currentChannel);
   }, []);
 
   const onSubmit = async (evt) => {

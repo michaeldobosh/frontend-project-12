@@ -5,15 +5,15 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import { useFormik } from 'formik';
-import { useCurrentChannel } from '../hooks/index.jsx';
-import { selectors } from '../slices/channelsSlice';
+// import { useCurrentChannel } from '../hooks/index.jsx';
+import { selectors, setCurrentChannel } from '../slices/channelsSlice';
 import setLocale from '../setLocale';
 
 setLocale();
 
 const AddChannel = ({ api, handleClose, modalsInfo }) => {
   const { t } = useTranslation();
-  const { setCurrentChannel } = useCurrentChannel();
+  // const { setCurrentChannel } = useCurrentChannel();
   const notify = (message) => toast.success(message);
   const dispatch = useDispatch();
   const inputRef = useRef();
@@ -39,8 +39,8 @@ const AddChannel = ({ api, handleClose, modalsInfo }) => {
       setErrors(false);
       try {
         const response = await api.addChannel({ name: values.name });
-        await dispatch(setCurrentChannel(response.data));
-        await handleClose();
+        dispatch(setCurrentChannel(response.data));
+        handleClose();
         notify(t(modalsInfo.action));
       } catch (err) {
         inputRef.current.select();
