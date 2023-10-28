@@ -7,7 +7,21 @@ import {
   Button,
   Navbar,
 } from 'react-bootstrap';
+import { setLocale } from 'yup';
 import { useAuth } from '../hooks/index.jsx';
+
+/* eslint-disable */
+setLocale({
+  mixed: {
+    default: 'dafault',
+    required: 'is_a_required_field',
+    oneOf: 'password_mismatch',
+    notOneOf: 'must_be_unique',
+  },
+  string: {
+    min: 'min_${min}',
+  },
+});
 
 const AuthButton = () => {
   const { t } = useTranslation();
@@ -24,8 +38,9 @@ const AuthButton = () => {
 const Layout = () => {
   const { t } = useTranslation();
   return (
-    <>
-      <Navbar className="mb-5" collapseOnSelect bg="light" expand="lg">
+    <div className="h-100">
+      <div className="d-flex flex-column h-100">
+      <Navbar className="shadow-sm" collapseOnSelect bg="light" expand="lg">
         <Container className="d-block w-75">
           <Row>
             <Col className="p-0 d-flex justify-content-between">
@@ -36,7 +51,8 @@ const Layout = () => {
         </Container>
       </Navbar>
       <Outlet />
-    </>
+      </div>
+    </div>
   );
 };
 

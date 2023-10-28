@@ -46,7 +46,7 @@ export default {
     we_cant_find_the_page: 'Мы не можем найти страницу, которую вы ищите. \n Она может быть еще не зарегистрирована или её не существует.',
     return_to_chat: 'Вернуться в чат!',
     site_version: 'Версия сайта: ',
-    operation_has_timed_out: 'Ошибка соединения',
+    сonnection_error: 'Ошибка соединения',
     empty_message: '',
   },
 };

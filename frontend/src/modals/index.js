@@ -8,4 +8,11 @@ const modals = {
   renameChannel: RenameChannel,
 };
 
-export default (modalName) => modals[modalName];
+const renderModal = (socket, handleClose, modalsInfo) => {
+  if (!modalsInfo.action) return null;
+
+  const Component = modals[modalsInfo.action];
+  return <Component socketApi={socket} handleClose={handleClose} modalsInfo={modalsInfo} />;
+};
+
+export default renderModal;

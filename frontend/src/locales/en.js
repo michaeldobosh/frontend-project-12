@@ -46,6 +46,6 @@ export default {
     we_cant_find_the_page: 'We can\'t find the page you are looking for. \n It may not be registered yet or may not exist.',
     return_to_chat: 'Return to chat!',
     site_version: 'Site version: ',
-    operation_has_timed_out: 'Network problem, try again',
+    сonnection_error: 'Network problem, try again',
   },
 };

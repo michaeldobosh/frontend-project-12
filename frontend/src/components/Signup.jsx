@@ -12,10 +12,7 @@ import {
 import * as yup from 'yup';
 import routes from '../routes';
 import { useAuth } from '../hooks/index.jsx';
-import setLocale from '../setLocale';
 import join from '../img/join.png';
-
-setLocale();
 
 const validationSchema = yup.object().shape({
   username: yup.string().required().trim()
@@ -25,7 +22,7 @@ const validationSchema = yup.object().shape({
   confirm: yup.string().oneOf([yup.ref('password')]),
 });
 
-const Registration = () => {
+const SignupPage = () => {
   const sendButton = useRef();
   const inputRef = useRef();
   const { t } = useTranslation();
@@ -75,8 +72,6 @@ const Registration = () => {
     }
     return null;
   };
-
-  console.log(formik.errors);
 
   return (
     <>
@@ -154,4 +149,4 @@ const Registration = () => {
   );
 };
 
-export default Registration;
+export default SignupPage;

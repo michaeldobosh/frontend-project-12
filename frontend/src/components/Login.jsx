@@ -12,10 +12,7 @@ import {
 import * as yup from 'yup';
 import routes from '../routes';
 import { useAuth } from '../hooks/index.jsx';
-import setLocale from '../setLocale';
 import chat from '../img/web-chat.png';
-
-setLocale();
 
 const validationSchema = yup.object().shape({
   username: yup.string().required().trim(),

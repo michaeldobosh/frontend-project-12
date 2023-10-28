@@ -1,11 +1,6 @@
 /* eslint-disable no-param-reassign */
 import axios from 'axios';
-import {
-  createSlice,
-  createEntityAdapter,
-  createAsyncThunk,
-  current,
-} from '@reduxjs/toolkit';
+import { createSlice, createEntityAdapter, createAsyncThunk } from '@reduxjs/toolkit';
 import getAuthHeader from '../getAuthHeader.js';
 import routes from '../routes.js';
 
@@ -19,7 +14,7 @@ export const fetchChannels = createAsyncThunk(
 );
 
 const channelsAdapter = createEntityAdapter();
-const initialState = channelsAdapter.getInitialState();
+const initialState = channelsAdapter.getInitialState({ currentChannelId: null });
 
 const channelsSlice = createSlice({
   name: 'channels',
@@ -30,20 +25,15 @@ const channelsSlice = createSlice({
     renameChannel: (state, { payload }) => {
       state.entities[payload.id].name = payload.name;
     },
-    setCurrentChannel: (state, actions) => {
-      state.currentChannel = actions.payload;
-      console.log(current(state));
+    setCurrentChannelId: (state, { payload }) => {
+      state.currentChannelId = payload;
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(fetchChannels.fulfilled, (state, { payload }) => {
         channelsAdapter.addMany(state, payload.channels);
-        state.defaultChannel = payload.channels.find(({ id }) => id === payload.currentChannelId);
-
-        if (!state.currentChannel?.id) {
-          state.currentChannel = { id: state.defaultChannel.id, name: state.defaultChannel.name };
-        }
+        state.currentChannelId = payload.currentChannelId;
       });
   },
 });
@@ -53,6 +43,6 @@ export const {
   addChannel,
   removeChannel,
   renameChannel,
-  setCurrentChannel,
+  setCurrentChannelId,
 } = channelsSlice.actions;
 export default channelsSlice.reducer;

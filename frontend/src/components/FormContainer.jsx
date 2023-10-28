@@ -18,9 +18,9 @@ const FormContainer = () => {
 
   return (
     <>
-      <Container fluid>
-        <Row className="justify-content-center">
-          <Col md="9" lg="8" xl="7" xxl="6" className="border border-2 pb-5 pe-5 ps-5 pt-2">
+      <Container fluid className="h-100">
+        <Row className="justify-content-center align-content-center h-100">
+          <Col md="9" lg="8" xl="7" xxl="6" className="border border-2 pb-5 pe-5 ps-5 pt-2 mb-5">
             <Row className="pb-5">
               <Col>
                 {t('site_version')}

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import {
   Modal,
@@ -8,14 +7,10 @@ import {
   Form,
   Alert,
 } from 'react-bootstrap';
-import { setCurrentChannel } from '../slices/channelsSlice';
-// import { useCurrentChannel } from '../hooks/index.jsx';
 
-const RemoveChannel = ({ api, handleClose, modalsInfo }) => {
+const RemoveChannel = ({ socketApi, handleClose, modalsInfo }) => {
   const { t } = useTranslation();
-  // const { currentChannel, defaultChannel, setCurrentChannel } = useCurrentChannel();
-  const { defaultChannel, currentChannel } = useSelector((state) => state.channels);
-  const dispatch = useDispatch();
+
   const notify = (message) => toast.success(message);
   const [errors, setErrors] = useState(false);
 
@@ -23,11 +18,7 @@ const RemoveChannel = ({ api, handleClose, modalsInfo }) => {
     evt.preventDefault();
     setErrors(false);
     try {
-      const response = await api.removeChannel({ id: modalsInfo.id });
-      console.log(currentChannel.id, +modalsInfo.id);
-      if (response.status === 'ok' && currentChannel.id === +modalsInfo.id) {
-        dispatch(setCurrentChannel(defaultChannel));
-      }
+      await socketApi.removeChannel({ id: modalsInfo.id });
       notify(t(modalsInfo.action));
       handleClose();
     } catch (error) {

@@ -1,22 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Modal, Button, Form } from 'react-bootstrap';
 import * as yup from 'yup';
 import { toast } from 'react-toastify';
 import { useFormik } from 'formik';
-// import { useCurrentChannel } from '../hooks/index.jsx';
-import { selectors, setCurrentChannel } from '../slices/channelsSlice';
-import setLocale from '../setLocale';
+import { selectors } from '../slices/channelsSlice';
 
-setLocale();
-
-const RenameChannel = ({ api, handleClose, modalsInfo }) => {
+const RenameChannel = ({ socketApi, handleClose, modalsInfo }) => {
   const { t } = useTranslation();
-  // const { currentChannel, setCurrentChannel } = useCurrentChannel();
-  const { currentChannel } = useSelector((state) => state.channels);
   const notify = (message) => toast.success(message);
-  const dispatch = useDispatch();
   const inputRef = useRef();
 
   useEffect(() => {
@@ -41,10 +34,7 @@ const RenameChannel = ({ api, handleClose, modalsInfo }) => {
     onSubmit: async ({ name }, actions) => {
       setErrors(false);
       try {
-        const response = await api.renameChannel({ id: modalsInfo.id, name });
-        if (response.status === 'ok' && modalsInfo.name === currentChannel.name) {
-          dispatch(setCurrentChannel({ id: modalsInfo.id, name }));
-        }
+        await socketApi.renameChannel({ id: modalsInfo.id, name });
         handleClose();
         notify(t(modalsInfo.action));
       } catch (err) {

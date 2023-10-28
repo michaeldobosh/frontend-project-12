@@ -9,55 +9,26 @@ import {
   Form,
 } from 'react-bootstrap';
 import filter from 'leo-profanity';
+import { ToastContainer } from 'react-toastify';
 
 import { useSocket } from '../hooks/index.jsx';
-import { fetchMessages, addMessage, selectors as extractMessages } from '../slices/messagesSlice';
-import {
-  fetchChannels,
-  addChannel,
-  removeChannel,
-  renameChannel,
-  // setCurrentChannel,
-} from '../slices/channelsSlice';
-import getModal from '../modals/index.js';
-import Header from './chat/Header.jsx';
-import Channels from './chat/Channels.jsx';
-import Messages from './chat/Messages.jsx';
+import { fetchMessages, selectors } from '../slices/messagesSlice';
+import { fetchChannels } from '../slices/channelsSlice';
+import MessagesBox from './chat/MessagesBox.jsx';
 
-const renderModal = (api, handleClose, modals) => {
-  if (!modals.action) return null;
-
-  const Component = getModal(modals.action);
-  return <Component api={api} handleClose={handleClose} modalsInfo={modals} />;
-};
-
-const Chat = () => {
+const Chat = ({ children }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { socket, getResult } = useSocket();
 
-  const api = {
-    sendMessage: (message) => getResult('newMessage', message),
-    addChannel: (channel) => getResult('newChannel', channel),
-    renameChannel: (channel) => getResult('renameChannel', channel),
-    removeChannel: (channel) => getResult('removeChannel', channel),
-  };
-
-  const sendButton = useRef();
-
-  const [chatMessage, setMessage] = useState('');
-  const [modalsInfo, setModalsInfo] = useState({});
-  const [error, setError] = useState('');
-  // const { currentChannel } = useCurrentChannel();
-  const currentChannel = useSelector((state) => state.channels.currentChannel);
-  // console.log(currentChannel);
-  setInterval(() => console.log(currentChannel, new Date().toLocaleTimeString()), 5000);
+  const { socketApi } = useSocket();
+  const inputRef = useRef();
+  const [chatMessage, setChatMessage] = useState('');
+  const [chatErrors, setChatErrors] = useState('');
+  const [onSubmitting, setSubmitting] = useState(false);
 
   const currentUser = localStorage.getItem('username');
-  const messages = useSelector(extractMessages.selectAll);
-
-  const currentChannelMessages = messages
-    .filter(({ messageChannel }) => messageChannel === currentChannel?.name);
+  const { currentChannelId } = useSelector(({ channels }) => channels);
+  const messages = useSelector(selectors.selectAll);
 
   useEffect(() => {
     dispatch(fetchMessages());
@@ -65,93 +36,71 @@ const Chat = () => {
   }, []);
 
   useEffect(() => {
-    socket.on('newMessage', (newMessage) => {
-      dispatch(addMessage(newMessage));
-      setMessage('');
-    });
-    socket.on('newChannel', (data) => {
-      dispatch(addChannel(data));
-    });
-    socket.on('renameChannel', (data) => {
-      dispatch(renameChannel(data));
-    });
-    socket.on('removeChannel', (data) => {
-      dispatch(removeChannel(data.id));
-      // console.log(currentChannel, 'test');
-      // const res = currentChannel?.id === data.id;
-      // console.log(currentChannel?.id, data.id);
-      // if (res) {
-      //   dispatch(setCurrentChannel(defaultChannel));
-      // }
-    });
+    setChatMessage('');
+    setSubmitting(false);
+  }, [messages]);
 
-    // console.log(currentChannel);
-  }, []);
+  useEffect(() => {
+    inputRef?.current?.focus();
+  }, [onSubmitting, currentChannelId]);
 
   const onSubmit = async (evt) => {
     evt.preventDefault();
-    setError('');
-    sendButton.current.disabled = true;
+    setSubmitting(true);
+    setChatErrors('');
     const newMessage = {
       message: filter.clean(chatMessage),
-      messageChannel: currentChannel.name,
+      messageChannelId: currentChannelId,
       username: currentUser,
     };
 
     try {
-      await api.sendMessage(newMessage);
+      await socketApi.sendMessage(newMessage);
     } catch (err) {
-      setError(err.message.replaceAll(' ', '_'));
-      sendButton.current.disabled = false;
+      setChatErrors('сonnection_error');
+      setSubmitting(false);
     }
   };
 
-  const handleShow = (evt) => {
-    const modal = {
-      action: evt.target.dataset.action,
-      id: evt.target.dataset.id,
-      name: evt.target.dataset.name,
-    };
-
-    setModalsInfo(modal);
-  };
-
-  const handleClose = () => setModalsInfo({});
-
-  return currentChannel && (
-    <Container className="d-md-block shadow">
-      <Row className="row-cols-2">
-        <Header handleShow={handleShow} messagesCount={currentChannelMessages.length} />
-        <Channels handleShow={handleShow} />
-        {renderModal(api, handleClose, modalsInfo)}
-        <Col className="p-3 col-8 col-md-9 col-lg-10 text-start">
-          <Messages messages={currentChannelMessages} error={error} />
-          <Form onSubmit={onSubmit} style={{ position: 'relative', bottom: 0 }}>
-            <Form.Group className="input-group-text p-0 bg-white">
-              <Form.Control
-                autoFocus
-                type="text"
-                name="message"
-                value={chatMessage}
-                onChange={(e) => setMessage(e.target.value)}
-                aria-label={t('new_message')}
-                placeholder={t('enter_your_message')}
-                className="border-0"
-              />
-              <Button
-                ref={sendButton}
-                type="submit"
-                variant="outline"
-                className="input-group-text border-0"
-                disabled={!chatMessage}
-              >
-                <i className="bi bi-chat-text" />
-              </Button>
-            </Form.Group>
-          </Form>
-        </Col>
-      </Row>
-    </Container>
+  return currentChannelId && (
+    <>
+      <Container className="shadow my-4 h-100 overflow-hidden rounded bg-white">
+        <Row className="flex-md-row h-100 ">
+          {children}
+          <Col className="p-0 h-100">
+            <div className="d-flex flex-column h-100">
+              <MessagesBox errors={chatErrors} />
+              <div className="mt-auto px-5 py-3">
+                <Form onSubmit={onSubmit} style={{ position: 'relative', bottom: 0 }}>
+                  <Form.Group className="input-group-text p-0 bg-white">
+                    <Form.Control
+                      ref={inputRef}
+                      type="text"
+                      name="message"
+                      value={chatMessage}
+                      onChange={(e) => setChatMessage(e.target.value)}
+                      aria-label={t('new_message')}
+                      placeholder={t('enter_your_message')}
+                      className="border-0"
+                      disabled={onSubmitting}
+                    />
+                    <Button
+                      type="submit"
+                      variant="outline"
+                      className="input-group-text border-0"
+                      disabled={!chatMessage || onSubmitting}
+                    >
+                      <i className="bi bi-chat-text" />
+                    </Button>
+                  </Form.Group>
+                </Form>
+              </div>
+            </div>
+          </Col>
+        </Row>
+      </Container>
+      <ToastContainer />
+    </>
   );
 };
 

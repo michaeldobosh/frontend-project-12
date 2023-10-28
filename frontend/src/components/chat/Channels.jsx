@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import {
   Col,
@@ -8,52 +8,48 @@ import {
 } from 'react-bootstrap';
 import { useTranslation } from 'react-i18next';
 import cn from 'classnames';
-import _ from 'lodash';
 
-import { setCurrentChannel, selectors as extractChannels } from '../../slices/channelsSlice';
-// import { useCurrentChannel } from '../../hooks/index.jsx';
+import { setCurrentChannelId } from '../../slices/channelsSlice';
+import { useSocket } from '../../hooks/index.jsx';
+import renderModal from '../../modals/index.js';
 
 const buttonsStyle = (isCurrent) => cn(
   'w-100 rounded-0 text-start text-truncate',
   { 'btn-secondary': isCurrent },
 );
 
-const renderButtonGroup = (handleShow, name, id, t) => {
-  const actions = [['removeChannel', 'remove'], ['renameChannel', 'rename']];
-  return (
-    <Dropdown.Menu>
-      {actions.map(([action, buttonName]) => (
-        <Dropdown.Item
-          key={_.uniqueId()}
-          data-action={action}
-          data-id={id}
-          data-name={name}
-          onClick={handleShow}
-        >
-          {t(buttonName)}
-        </Dropdown.Item>
-      ))}
-    </Dropdown.Menu>
-  );
-};
-
-const Channels = ({ handleShow }) => {
+const Channels = () => {
   const { t } = useTranslation();
+  const { socketApi } = useSocket();
   const dispatch = useDispatch();
 
-  // const { currentChannel, setCurrentChannel } = useCurrentChannel();
-  const currentChannel = useSelector((state) => state.channels.currentChannel);
-  const channels = useSelector(extractChannels.selectAll);
-  // console.log(`Отрисовка Channels в ${new Date().toLocaleString()} `);
+  const [modalsInfo, setModalsInfo] = useState({});
+  const currentButton = useRef();
+  const { currentChannelId } = useSelector(({ channels }) => channels);
+  const channels = useSelector((state) => state.channels.entities);
 
-  const focus = (evt) => evt.currentTarget.scrollIntoView({ block: 'end', behavior: 'smooth' });
+  useEffect(() => {
+    currentButton?.current?.scrollIntoView(false);
+  }, [currentChannelId, channels]);
+
+  const handleShow = (evt) => {
+    const modal = {
+      action: evt.target.dataset.action,
+      id: evt.target.dataset.id,
+      name: evt.target.dataset.name,
+    };
+
+    setModalsInfo(modal);
+  };
+
+  const handleClose = () => setModalsInfo({});
 
   const button = (name, id, isCurrent) => (
     <Button
       variant="outline"
       className={buttonsStyle(isCurrent)}
-      onClick={() => dispatch(setCurrentChannel({ name, id }))}
-      onFocus={(evt) => focus(evt)}
+      onClick={() => dispatch(setCurrentChannelId(id))}
+      ref={isCurrent ? currentButton : null}
     >
       {`# ${name}`}
     </Button>
@@ -61,9 +57,8 @@ const Channels = ({ handleShow }) => {
 
   const renderChannels = () => (
     <ul className="nav flex-column nav-pills nav-fill px-2 mb-3 overflow-auto h-100 d-block">
-      {channels.map(({ id, name, removable }) => {
-        // console.log(name, currentChannel.name);
-        const isCurrent = name === currentChannel.name;
+      {Object.values(channels).map(({ id, name, removable }) => {
+        const isCurrent = id === currentChannelId;
         return removable ? (
           <li key={id}>
             <Dropdown as={ButtonGroup} className="w-100">
@@ -75,7 +70,14 @@ const Channels = ({ handleShow }) => {
               >
                 <span className="visually-hidden">{t('channel_management')}</span>
               </Dropdown.Toggle>
-              {renderButtonGroup(handleShow, name, id, t)}
+              <Dropdown.Menu>
+                <Dropdown.Item data-action="renameChannel" data-id={id} data-name={name} onClick={handleShow}>
+                  {t('rename')}
+                </Dropdown.Item>
+                <Dropdown.Item data-action="removeChannel" data-id={id} data-name={name} onClick={handleShow}>
+                  {t('remove')}
+                </Dropdown.Item>
+              </Dropdown.Menu>
             </Dropdown>
           </li>
         ) : (
@@ -89,10 +91,26 @@ const Channels = ({ handleShow }) => {
 
   return (
     <Col
-      className="py-4 px-0 col-4 col-md-3 col-lg-2 border-end border-3 border-light"
-      style={{ height: 700, backgroundColor: '#CFE2FF' }}
+      className="px-0 col-4 col-md-3 col-lg-2 flex-column h-100 d-flex border-end border-3 border-light"
+      style={{ backgroundColor: '#CFE2FF' }}
     >
-      {currentChannel && renderChannels()}
+      <div className="d-flex mt-1 justify-content-between mb-2 ps-4 pe-2 p-4">
+        <b>{t('channels')}</b>
+        <Button
+          variant="group-vertical"
+          type="button"
+          className="p-0 text-primary"
+          onClick={handleShow}
+        >
+          <svg data-action="newChannel" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+            <path data-action="newChannel" d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z" />
+            <path data-action="newChannel" d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+          </svg>
+          <span className="visually-hidden">+</span>
+        </Button>
+      </div>
+      {currentChannelId && renderChannels()}
+      {renderModal(socketApi, handleClose, modalsInfo)}
     </Col>
   );
 };

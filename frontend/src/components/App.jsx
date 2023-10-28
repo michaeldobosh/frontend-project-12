@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from 'react';
-// import { useSelector, useDispatch } from 'react-redux';
 import {
   BrowserRouter as Router,
   Routes,
@@ -11,13 +10,15 @@ import Layout from './Layout';
 import Chat from './Chat';
 import LoginPage from './Login';
 import Error from './Error404';
-import Registration from './Signup';
+import SignupPage from './Signup';
 import { UserContext } from '../contexts/index.jsx';
 import { useAuth } from '../hooks/index.jsx';
 import getAuthHeader from '../getAuthHeader.js';
-// import { fetchChannels, setCurrentChannel } from '../slices/channelsSlice';
-// import { fetchMessages } from '../slices/messagesSlice';
 import FormContainer from './FormContainer';
+import Channels from './chat/Channels.jsx';
+import routes from '../routes';
+
+const { loginPage, chatPage, signupPage } = routes;
 
 const AuthProvider = ({ children }) => {
   const { Authorization } = getAuthHeader();
@@ -37,39 +38,17 @@ const AuthProvider = ({ children }) => {
   );
 };
 
-// const CurrentChannelProvider = ({ children }) => {
-//   const dispatch = useDispatch();
-//   const { defaultChannel, currentChannel } = useSelector((state) => state.channels);
-//   console.log(currentChannel, 'App');
-
-//   useEffect(() => {
-//     dispatch(setCurrentChannel({ id: 1, name: 'general' }));
-//     dispatch(fetchMessages());
-//     dispatch(fetchChannels());
-//   }, []);
-
-//   return (
-//     <CurrentChannel.Provider value={useMemo(() => ({
-//       currentChannel,
-//       defaultChannel,
-//     }), [currentChannel, defaultChannel])}
-//     >
-//       {children}
-//     </CurrentChannel.Provider>
-//   );
-// };
-
 const PrivateRoute = ({ children }) => {
   const auth = useAuth();
   return (
-    auth.loggedIn ? children : <Navigate to="login" />
+    auth.loggedIn ? children : <Navigate to={loginPage} />
   );
 };
 
 const RedirectToChat = ({ children }) => {
   const auth = useAuth();
   return (
-    !auth.loggedIn ? children : <Navigate to="/" />
+    !auth.loggedIn ? children : <Navigate to={chatPage} />
   );
 };
 
@@ -77,20 +56,20 @@ const App = () => (
   <AuthProvider>
     <Router>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path={chatPage} element={<Layout />}>
           <Route
             index
             element={(
               <PrivateRoute>
-                {/* <CurrentChannelProvider> */}
-                <Chat />
-                {/* </CurrentChannelProvider> */}
+                <Chat>
+                  <Channels />
+                </Chat>
               </PrivateRoute>
             )}
           />
           <Route element={<FormContainer />}>
-            <Route path="login" element={<RedirectToChat><LoginPage /></RedirectToChat>} />
-            <Route path="signup" element={<RedirectToChat><Registration /></RedirectToChat>} />
+            <Route path={loginPage} element={<RedirectToChat><LoginPage /></RedirectToChat>} />
+            <Route path={signupPage} element={<RedirectToChat><SignupPage /></RedirectToChat>} />
           </Route>
           <Route path="*" element={<Error />} />
         </Route>
