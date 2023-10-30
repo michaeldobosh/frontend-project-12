@@ -7,8 +7,9 @@ jobs:
   linter-check:
     runs-on: ubuntu-latest
     defaults:
+      run:
+        working-directory: ./frontend
     steps:
-      - uses: {frontend}
       - name: Run linter
         run: make lint
         
