@@ -15,5 +15,9 @@ deploy:
 
 start:
 	make start-backend & make start-frontend
+
+lint:
+	make -C frontend lint
+
 kill:
 	npx kill-port 5001

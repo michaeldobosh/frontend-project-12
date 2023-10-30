@@ -13,7 +13,6 @@ import Error from './Error404';
 import SignupPage from './Signup';
 import { UserContext } from '../contexts/index.jsx';
 import { useAuth } from '../hooks/index.jsx';
-import getAuthHeader from '../getAuthHeader.js';
 import FormContainer from './FormContainer';
 import Channels from './chat/Channels.jsx';
 import routes from '../routes';
@@ -21,10 +20,17 @@ import routes from '../routes';
 const { loginPage, chatPage, signupPage } = routes;
 
 const AuthProvider = ({ children }) => {
-  const { Authorization } = getAuthHeader();
-  const [loggedIn, setLoggedIn] = useState(!!Authorization);
+  const userId = JSON.parse(localStorage.getItem('userId'));
+  const token = userId?.token ? `Bearer ${userId.token}` : false;
 
-  const logIn = () => setLoggedIn(true);
+  const [loggedIn, setLoggedIn] = useState(token);
+
+  const logIn = (jwt) => {
+    const authorizationData = `Bearer ${jwt}`;
+    setLoggedIn(authorizationData);
+    localStorage.setItem('userId', JSON.stringify({ token: jwt }));
+  };
+
   const logOut = () => {
     localStorage.removeItem('userId');
     localStorage.removeItem('username');
@@ -39,16 +45,16 @@ const AuthProvider = ({ children }) => {
 };
 
 const PrivateRoute = ({ children }) => {
-  const auth = useAuth();
+  const { loggedIn } = useAuth();
   return (
-    auth.loggedIn ? children : <Navigate to={loginPage} />
+    loggedIn ? children : <Navigate to={loginPage} />
   );
 };
 
 const RedirectToChat = ({ children }) => {
-  const auth = useAuth();
+  const { loggedIn } = useAuth();
   return (
-    !auth.loggedIn ? children : <Navigate to={chatPage} />
+    !loggedIn ? children : <Navigate to={chatPage} />
   );
 };
 

@@ -1,14 +1,13 @@
 /* eslint-disable no-param-reassign */
 import axios from 'axios';
 import { createSlice, createEntityAdapter, createAsyncThunk } from '@reduxjs/toolkit';
-import getAuthHeader from '../getAuthHeader.js';
 import routes from '../routes.js';
 
 export const fetchChannels = createAsyncThunk(
   'channels/fetchChannels',
-  async () => {
-    const dataId = getAuthHeader();
-    const response = await axios.get(routes.dataPath(), { headers: dataId });
+  async (token) => {
+    const response = await axios
+      .get(routes.dataPath(), { headers: { Authorization: token } });
     return response.data;
   },
 );

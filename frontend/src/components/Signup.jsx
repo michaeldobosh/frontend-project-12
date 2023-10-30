@@ -44,12 +44,11 @@ const SignupPage = () => {
     onSubmit: async (values, actions) => {
       setErrors(false);
       sendButton.current.disabled = true;
-      const path = await routes.signupPath();
+      const path = routes.signupPath();
       try {
         const { data: { token } } = await axios.post(path, values);
-        localStorage.setItem('userId', JSON.stringify({ token }));
         localStorage.setItem('username', values.username);
-        auth.logIn();
+        auth.logIn(token);
       } catch (error) {
         sendButton.current.disabled = false;
         actions.setSubmitting(false);
@@ -63,7 +62,7 @@ const SignupPage = () => {
   });
 
   const showErrors = (fieldName) => {
-    if (formik.errors[fieldName]?.trim() && formik.touched[fieldName]) {
+    if (formik.errors[fieldName] && formik.touched[fieldName]) {
       return (
         <Form.Text className="invalid-tooltip m-0">
           {t(formik.errors[fieldName])}

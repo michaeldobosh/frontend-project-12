@@ -7,6 +7,7 @@ import {
 } from 'react-bootstrap';
 import { Link, Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import routes from '../routes';
 
 const FormContainer = () => {
   const { t, i18n } = useTranslation();
@@ -40,7 +41,7 @@ const FormContainer = () => {
           <Row>
             <Col className="p-0 d-flex justify-content-center">
               <Navbar.Brand>{t('no_account')}</Navbar.Brand>
-              <Button as={Link} variant="outline-secondary" to="/signup" className="ms-3">{t('reg')}</Button>
+              <Button as={Link} variant="outline-secondary" to={routes.signupPage} className="ms-3">{t('reg')}</Button>
             </Col>
           </Row>
         </Container>

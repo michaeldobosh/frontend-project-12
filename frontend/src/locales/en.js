@@ -1,7 +1,7 @@
 export default {
   translation: {
     default: 'Validation error',
-    enter: 'Come In',
+    enter: ' Come In',
     your_nickname: 'Your login',
     username: 'User name',
     password: 'Password',

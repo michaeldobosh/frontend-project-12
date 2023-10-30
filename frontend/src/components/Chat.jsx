@@ -11,13 +11,14 @@ import {
 import filter from 'leo-profanity';
 import { ToastContainer } from 'react-toastify';
 
-import { useSocket } from '../hooks/index.jsx';
+import { useSocket, useAuth } from '../hooks/index.jsx';
 import { fetchMessages, selectors } from '../slices/messagesSlice';
 import { fetchChannels } from '../slices/channelsSlice';
 import MessagesBox from './chat/MessagesBox.jsx';
 
 const Chat = ({ children }) => {
   const { t } = useTranslation();
+  const { loggedIn } = useAuth();
   const dispatch = useDispatch();
 
   const { socketApi } = useSocket();
@@ -31,8 +32,8 @@ const Chat = ({ children }) => {
   const messages = useSelector(selectors.selectAll);
 
   useEffect(() => {
-    dispatch(fetchMessages());
-    dispatch(fetchChannels());
+    dispatch(fetchMessages(loggedIn));
+    dispatch(fetchChannels(loggedIn));
   }, []);
 
   useEffect(() => {

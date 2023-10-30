@@ -21,7 +21,7 @@ const AddChannel = ({ socketApi, handleClose, modalsInfo }) => {
   const [errors, setErrors] = useState(false);
 
   const validationSchema = yup.object({
-    name: yup.string().required()
+    name: yup.string().required().trim()
       .min(3, 'from_3_to_20_characters')
       .max(20, 'from_3_to_20_characters')
       .notOneOf(channelsNames),

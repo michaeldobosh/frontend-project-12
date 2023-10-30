@@ -43,7 +43,6 @@ const LoginPage = () => {
       try {
         const path = routes.loginPath();
         const { data: { token } } = await axios.post(path, values);
-        localStorage.setItem('userId', JSON.stringify({ token }));
         localStorage.setItem('username', values.username);
         auth.logIn(token);
       } catch (error) {

@@ -22,7 +22,7 @@ const MessagesBox = ({ errors }) => {
     if (messageArea?.current?.offsetHeight < chat?.current?.offsetHeight) {
       chat?.current?.scrollIntoView(false);
     }
-  }, [messages]);
+  }, [messages, currentChannelId]);
 
   const messagesStyles = (username) => {
     const isCurrent = username === currentUser;
