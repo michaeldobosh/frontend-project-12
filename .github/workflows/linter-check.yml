@@ -7,8 +7,11 @@ jobs:
   build:
     name: Runs test
     runs-on: ubuntu-latest
+    
+    env:
+      PROJECT_PATH: <relative-path-to-project-directory>
     steps:
       - name: Runs test
         run: npx eslint --ext js,jsx --no-eslintrc --config .eslintrc.yml .
-        working-directory: ${{ github.workspace }}/frontend
+        working-directory: ${{ github.workspace }}/${{ env.PROJECT_PATH }}/frontend
 
