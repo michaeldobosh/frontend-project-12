@@ -9,9 +9,9 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      PROJECT_PATH: <relative-path-to-project-directory>
+      PROJECT_PATH: /home/runner/work/frontend-project-12/
     steps:
       - name: Runs test
         run: npx eslint --ext js,jsx --no-eslintrc --config .eslintrc.yml .
-        working-directory: ${{ github.workspace }}/${{ env.PROJECT_PATH }}/frontend
+        working-directory: ${{ env.PROJECT_PATH }}/frontend
 
