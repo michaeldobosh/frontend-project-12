@@ -7,7 +7,5 @@ jobs:
   linter-check:
     runs-on: ubuntu-latest
     steps:
-      - name: Run linter
-        run: make lint
-        working-directory: 'frontend'
-        
+      - run: make lint
+        working-directory: ./frontend
