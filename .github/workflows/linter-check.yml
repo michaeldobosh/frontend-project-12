@@ -9,6 +9,9 @@ jobs:
     
     steps:
       - uses: action/checkout@v3
+      - name: installation
+        run: npm ci
+        
       - name: lint
         run: make lint-frontend
 
