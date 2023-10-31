@@ -9,5 +9,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Runs test
-        run: make lint
-        working-directory: ./frontend
+        run: npx eslint --ext js,jsx --no-eslintrc --config .eslintrc.yml . # /home/runner/work/frontend-project-12/frontend 
+
