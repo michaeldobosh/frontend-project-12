@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      PROJECT_PATH: /home/runner/work/frontend-project-12/
+      PROJECT_PATH: /home/runner/work/frontend-project-12
     steps:
       - name: Runs test
         run: npx eslint --ext js,jsx --no-eslintrc --config .eslintrc.yml .
