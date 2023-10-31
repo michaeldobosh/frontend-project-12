@@ -4,14 +4,11 @@ on:
   - pull_request
 
 jobs:
-  build:
-    name: Runs test
+  cheking:
     runs-on: ubuntu-latest
     
-    env:
-      PROJECT_PATH: /home/runner/work/frontend-project-12
     steps:
-      - name: Runs test
-        run: npx eslint --ext js,jsx --no-eslintrc --config .eslintrc.yml .
-        working-directory: ${{ env.PROJECT_PATH }}/frontend/
+      - uses: action/checkout@v3
+      - name: lint
+        run: make lint-frontend
 
