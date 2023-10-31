@@ -4,7 +4,10 @@ on:
   - pull_request
 
 jobs:
-  linter-check:
+  build:
+    name: Runs test
     runs-on: ubuntu-latest
     steps:
-      - run: make lint # /home/runner/work/frontend-project-12/frontend
+      - name: Runs test
+        run: make lint
+        working-directory: ./frontend
