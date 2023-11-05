@@ -44,11 +44,10 @@ const SignupPage = () => {
     onSubmit: async (values, actions) => {
       setErrors(false);
       sendButton.current.disabled = true;
-      const path = routes.signupPath();
       try {
+        const path = routes.signupPath();
         const { data: { token } } = await axios.post(path, values);
-        localStorage.setItem('username', values.username);
-        auth.logIn(token);
+        auth.logIn({ token, userName: values.username });
       } catch (error) {
         sendButton.current.disabled = false;
         actions.setSubmitting(false);
