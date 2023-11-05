@@ -48,5 +48,7 @@ export default {
     site_version: 'Версия сайта: ',
     сonnection_error: 'Ошибка соединения',
     empty_message: '',
+    loading: 'Загрузка...',
+    plus: '+',
   },
 };

@@ -137,7 +137,7 @@ const SignupPage = () => {
             {formik.isSubmitting
               && (
               <Spinner animation="border" role="status" className="position-absolute">
-                <span className="visually-hidden">Loading...</span>
+                <span className="visually-hidden">{t('loading')}</span>
               </Spinner>
               )}
             {t('signup')}

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   BrowserRouter as Router,
   Routes,
@@ -20,41 +20,37 @@ import routes from '../routes';
 const { loginPage, chatPage, signupPage } = routes;
 
 const AuthProvider = ({ children }) => {
-  const userId = JSON.parse(localStorage.getItem('userId'));
-  const token = userId?.token ? `Bearer ${userId.token}` : false;
+  const data = JSON.parse(localStorage.getItem('userId'));
+  const [userId, setUserId] = useState(data);
 
-  const [loggedIn, setLoggedIn] = useState(token);
-
-  const logIn = (jwt) => {
-    const authorizationData = `Bearer ${jwt}`;
-    setLoggedIn(authorizationData);
-    localStorage.setItem('userId', JSON.stringify({ token: jwt }));
+  const logIn = ({ token, userName }) => {
+    localStorage.setItem('userId', JSON.stringify({ token, userName }));
+    setUserId({ token, userName });
   };
 
   const logOut = () => {
     localStorage.removeItem('userId');
-    localStorage.removeItem('username');
-    setLoggedIn(false);
+    setUserId({});
   };
 
   return (
-    <UserContext.Provider value={useMemo(() => ({ loggedIn, logIn, logOut }), [loggedIn])}>
+    <UserContext.Provider value={useMemo(() => ({ userId, logIn, logOut }), [userId])}>
       {children}
     </UserContext.Provider>
   );
 };
 
 const PrivateRoute = ({ children }) => {
-  const { loggedIn } = useAuth();
+  const { userId } = useAuth();
   return (
-    loggedIn ? children : <Navigate to={loginPage} />
+    userId?.token ? children : <Navigate to={loginPage} />
   );
 };
 
 const RedirectToChat = ({ children }) => {
-  const { loggedIn } = useAuth();
+  const { userId } = useAuth();
   return (
-    !loggedIn ? children : <Navigate to={chatPage} />
+    !userId?.token ? children : <Navigate to={chatPage} />
   );
 };
 

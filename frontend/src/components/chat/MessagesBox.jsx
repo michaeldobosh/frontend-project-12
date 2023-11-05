@@ -5,13 +5,14 @@ import cn from 'classnames';
 import { ListGroup, Alert } from 'react-bootstrap';
 
 import { selectors } from '../../slices/messagesSlice';
+import { useAuth } from '../../hooks/index.jsx';
 
 const MessagesBox = ({ errors }) => {
   const { t } = useTranslation();
+  const { userId } = useAuth();
   const chat = useRef();
   const messageArea = useRef();
 
-  const currentUser = localStorage.getItem('username');
   const { currentChannelId } = useSelector(({ channels }) => channels);
   const messages = useSelector(selectors.selectAll);
   const channels = useSelector((state) => state.channels.entities);
@@ -24,8 +25,8 @@ const MessagesBox = ({ errors }) => {
     }
   }, [messages, currentChannelId]);
 
-  const messagesStyles = (username) => {
-    const isCurrent = username === currentUser;
+  const messagesStyles = (postAuthorName) => {
+    const isCurrent = postAuthorName === userId.userName;
     return cn({ 'primary align-self-end': isCurrent }, 'secondary');
   };
 
@@ -37,13 +38,13 @@ const MessagesBox = ({ errors }) => {
       </div>
       <div className="px-5 overflow-y-auto" ref={messageArea}>
         <ListGroup className="d-flex flex-column px-2 mb-3" ref={chat}>
-          {currentChannelMessages.map(({ id, message, username }) => (
+          {currentChannelMessages.map(({ id, message, userName }) => (
             <ListGroup.Item
               key={id}
-              variant={messagesStyles(username)}
+              variant={messagesStyles(userName)}
               className="w-50 m-1 mb-0 p-2 rounded-top-4 rounded-end-4 text-break"
             >
-              <span className="fw-bold">{`${username}: `}</span>
+              <span className="fw-bold">{`${userName}: `}</span>
               {message}
             </ListGroup.Item>
           ))}

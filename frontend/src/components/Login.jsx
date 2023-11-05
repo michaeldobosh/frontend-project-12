@@ -43,8 +43,7 @@ const LoginPage = () => {
       try {
         const path = routes.loginPath();
         const { data: { token } } = await axios.post(path, values);
-        localStorage.setItem('username', values.username);
-        auth.logIn(token);
+        auth.logIn({ token, userName: values.username });
       } catch (error) {
         sendButton.current.disabled = false;
         actions.setSubmitting(false);
@@ -108,7 +107,7 @@ const LoginPage = () => {
             {formik.isSubmitting
             && (
             <Spinner animation="border" role="status" className="position-absolute">
-              <span className="visually-hidden">Loading...</span>
+              <span className="visually-hidden">{t('loading')}</span>
             </Spinner>
             )}
             <i className="bi bi-box-arrow-in-right" />

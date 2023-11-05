@@ -8,6 +8,7 @@ import {
   Button,
 } from 'react-bootstrap';
 import error404 from '../img/error404.png';
+import routes from '../routes';
 
 const Error = () => {
   const { t } = useTranslation();
@@ -23,7 +24,7 @@ const Error = () => {
         <Col className="text-center p-2">
           <h2>{t('page_not_found')}</h2>
           <p>{t('we_cant_find_the_page')}</p>
-          <Button as={Link} variant="outline-secondary w-25" to="/">{t('return_to_chat')}</Button>
+          <Button as={Link} variant="outline-secondary w-25" to={routes.chatPage}>{t('return_to_chat')}</Button>
         </Col>
       </Row>
     </Container>

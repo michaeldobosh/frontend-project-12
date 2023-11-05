@@ -1,16 +1,6 @@
 /* eslint-disable no-param-reassign */
-import axios from 'axios';
-import { createSlice, createEntityAdapter, createAsyncThunk } from '@reduxjs/toolkit';
-import routes from '../routes.js';
-
-export const fetchChannels = createAsyncThunk(
-  'channels/fetchChannels',
-  async (token) => {
-    const response = await axios
-      .get(routes.dataPath(), { headers: { Authorization: token } });
-    return response.data;
-  },
-);
+import { createSlice, createEntityAdapter } from '@reduxjs/toolkit';
+import fetchData from './fetchDataSlice.js';
 
 const channelsAdapter = createEntityAdapter();
 const initialState = channelsAdapter.getInitialState({ currentChannelId: null });
@@ -30,7 +20,7 @@ const channelsSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchChannels.fulfilled, (state, { payload }) => {
+      .addCase(fetchData.fulfilled, (state, { payload }) => {
         channelsAdapter.addMany(state, payload.channels);
         state.currentChannelId = payload.currentChannelId;
       });

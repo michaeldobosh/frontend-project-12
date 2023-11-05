@@ -9,6 +9,7 @@ import {
 } from 'react-bootstrap';
 import { setLocale } from 'yup';
 import { useAuth } from '../hooks/index.jsx';
+import routes from '../routes';
 
 /* eslint-disable */
 setLocale({
@@ -25,13 +26,13 @@ setLocale({
 
 const AuthButton = () => {
   const { t } = useTranslation();
-  const auth = useAuth();
+  const { userId, logOut } = useAuth();
   const location = useLocation();
 
   return (
-    auth.loggedIn
-      ? <Button onClick={auth.logOut} variant="outline-secondary">{t('log_out')}</Button>
-      : <Button as={Link} variant="outline-secondary" to="login" state={{ from: location }}>{t('log_in')}</Button>
+    userId?.token
+      ? <Button onClick={logOut} variant="outline-secondary">{t('log_out')}</Button>
+      : <Button as={Link} variant="outline-secondary" to={routes.loginPage} state={{ from: location }}>{t('log_in')}</Button>
   );
 };
 

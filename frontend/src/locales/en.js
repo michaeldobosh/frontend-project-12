@@ -47,5 +47,7 @@ export default {
     return_to_chat: 'Return to chat!',
     site_version: 'Site version: ',
     сonnection_error: 'Network problem, try again',
+    loading: 'Loading...',
+    plus: '+',
   },
 };

@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import React, { useState, useEffect, useRef } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   Container,
   Row,
@@ -12,14 +12,14 @@ import filter from 'leo-profanity';
 import { ToastContainer } from 'react-toastify';
 
 import { useSocket, useAuth } from '../hooks/index.jsx';
-import { fetchMessages, selectors } from '../slices/messagesSlice';
-import { fetchChannels } from '../slices/channelsSlice';
+import { selectors } from '../slices/messagesSlice';
 import MessagesBox from './chat/MessagesBox.jsx';
+import fetchData from '../slices/fetchDataSlice.js';
 
 const Chat = ({ children }) => {
   const { t } = useTranslation();
-  const { loggedIn } = useAuth();
   const dispatch = useDispatch();
+  const { userId, logOut } = useAuth();
 
   const { socketApi } = useSocket();
   const inputRef = useRef();
@@ -27,13 +27,11 @@ const Chat = ({ children }) => {
   const [chatErrors, setChatErrors] = useState('');
   const [onSubmitting, setSubmitting] = useState(false);
 
-  const currentUser = localStorage.getItem('username');
   const { currentChannelId } = useSelector(({ channels }) => channels);
   const messages = useSelector(selectors.selectAll);
 
   useEffect(() => {
-    dispatch(fetchMessages(loggedIn));
-    dispatch(fetchChannels(loggedIn));
+    dispatch(fetchData({ userId, logOut }));
   }, []);
 
   useEffect(() => {
@@ -52,7 +50,7 @@ const Chat = ({ children }) => {
     const newMessage = {
       message: filter.clean(chatMessage),
       messageChannelId: currentChannelId,
-      username: currentUser,
+      userName: userId.userName,
     };
 
     try {
